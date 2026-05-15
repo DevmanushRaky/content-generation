@@ -4,6 +4,7 @@ import { DEFAULT_RESEARCH_PLATFORMS } from '@/components/dashboard/platforms'
 
 const LS_KEY = 'cosmetology_ideas'
 const LS_BATCH_KEY = 'cosmetology_latest_batch'
+const LS_BATCH_META_KEY = 'cosmetology_latest_batch_meta'
 const STAGE_ORDER = ['soul', 'max', 'nova', 'published']
 
 function daysAgo(days) {
@@ -140,6 +141,28 @@ function saveIdeas(ideas) {
     localStorage.setItem(LS_KEY, JSON.stringify(ideas))
   } catch (error) {
     if (import.meta.env.DEV) console.warn('Unable to persist ideas', error)
+  }
+}
+
+function loadBatchMeta() {
+  try {
+    const raw = localStorage.getItem(LS_BATCH_META_KEY)
+    if (!raw) return { topic: '', hashtags: [] }
+    const parsed = JSON.parse(raw)
+    return {
+      topic: parsed?.topic || '',
+      hashtags: Array.isArray(parsed?.hashtags) ? parsed.hashtags : [],
+    }
+  } catch {
+    return { topic: '', hashtags: [] }
+  }
+}
+
+function saveBatchMeta(meta) {
+  try {
+    localStorage.setItem(LS_BATCH_META_KEY, JSON.stringify(meta))
+  } catch (error) {
+    if (import.meta.env.DEV) console.warn('Unable to persist batch meta', error)
   }
 }
 
@@ -297,6 +320,7 @@ export function useIdeas() {
   const [latestBatchId, setLatestBatchId] = useState(
     () => localStorage.getItem(LS_BATCH_KEY) || 'dummy-batch'
   )
+  const [latestBatchMeta, setLatestBatchMeta] = useState(() => loadBatchMeta())
 
   const runScrapeJob = useCallback((config) => {
     setView('processing')
@@ -310,6 +334,14 @@ export function useIdeas() {
         return next
       })
       localStorage.setItem(LS_BATCH_KEY, batchId)
+      const nextMeta = {
+        topic: config.topic || '',
+        hashtags: Array.isArray(config.hashtags) ? config.hashtags : [],
+        platforms: Array.isArray(config.platforms) ? config.platforms : [],
+        topN: config.topN || 5,
+      }
+      localStorage.setItem(LS_BATCH_META_KEY, JSON.stringify(nextMeta))
+      setLatestBatchMeta(nextMeta)
       setLatestBatchId(batchId)
       setProcessing(false)
       setView('home')
@@ -338,13 +370,15 @@ export function useIdeas() {
   const clearIdeas = useCallback(() => {
     setIdeas([])
     saveIdeas([])
+    saveBatchMeta({ topic: '', hashtags: [], platforms: [], topN: 5 })
+    setLatestBatchMeta({ topic: '', hashtags: [] })
     setView('scrape')
   }, [])
 
   const latestIdeas = ideas.filter(i => i.batchId === latestBatchId)
 
   return {
-    ideas, latestIdeas, processing, view,
+    ideas, latestIdeas, latestBatchMeta, processing, view,
     runScrapeJob, approveIdea, rejectIdea,
     goHome, resetToScrape, clearIdeas,
   }

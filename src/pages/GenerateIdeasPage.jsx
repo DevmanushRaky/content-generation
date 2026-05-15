@@ -4,11 +4,13 @@ import { useNavigate } from 'react-router-dom'
 import { Menu, ArrowLeft, RotateCcw } from 'lucide-react'
 
 export default function GenerateIdeasPage({ onMenuOpen, isMobile }) {
-  const { latestIdeas, approveIdea, rejectIdea } = useIdeas()
+  const { latestIdeas, latestBatchMeta, approveIdea, rejectIdea } = useIdeas()
   const navigate = useNavigate()
 
   // work with the latest batch only
   const ideas = latestIdeas
+  const topicTitle = formatTopicTitle(latestBatchMeta?.topic)
+  const hashtagLine = formatHashtagLine(latestBatchMeta?.hashtags)
 
   function handleNewResearch() {
     navigate('/?view=scrape')
@@ -61,11 +63,11 @@ export default function GenerateIdeasPage({ onMenuOpen, isMobile }) {
           <span style={{ fontSize: 18 }}>🔮</span>
           <div>
             <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
-              Generated Ideas
+              {topicTitle}
             </p>
             {!isMobile && (
               <p style={{ fontSize: 11, color: 'var(--text-muted)', margin: 0 }}>
-                Soul's research results — approve the ideas you want to move forward with
+                {hashtagLine || "Soul's research results — approve the ideas you want to move forward with"}
               </p>
             )}
           </div>
@@ -143,4 +145,17 @@ function EmptyState({ onGenerate }) {
       </button>
     </div>
   )
+}
+
+function formatTopicTitle(topic) {
+  const cleaned = (topic || '').trim()
+  if (!cleaned) return 'Generated Ideas'
+  const words = cleaned.split(/\s+/).filter(Boolean)
+  if (words.length <= 7) return cleaned
+  return `${words.slice(0, 7).join(' ')}…`
+}
+
+function formatHashtagLine(hashtags) {
+  if (!Array.isArray(hashtags) || hashtags.length === 0) return ''
+  return hashtags.map(tag => `#${String(tag).replace(/^#/, '')}`).join(' ')
 }

@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { Heart, Eye, Clock, ExternalLink, ArrowRight, Play } from 'lucide-react'
+import { Heart, Eye, Clock, ArrowRight, Play } from 'lucide-react'
 
 // Inline SVG brand icons — real platform logos
 function InstagramIcon({ size = 14 }) {
@@ -127,7 +127,7 @@ export default function IdeasTable({ ideas, onNewResearch }) {
   }
 
 
-  const COLS = ['#', 'Topic', 'Platform', 'Type', 'Engagement', 'Generated', 'Stage', 'Status', '']
+  const COLS = ['#', 'Topic', 'Platform', 'Type', 'Engagement', 'Generated', 'Stage', 'Status']
 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'var(--bg-primary)' }}>
@@ -304,10 +304,6 @@ export default function IdeasTable({ ideas, onNewResearch }) {
                     </span>
                   </td>
 
-                  {/* Arrow */}
-                  <td style={{ padding: '13px 20px 13px 6px', textAlign: 'right' }}>
-                    <ExternalLink size={13} style={{ color: 'var(--text-muted)', opacity: 0.4 }} />
-                  </td>
                 </tr>
               )
             })}
