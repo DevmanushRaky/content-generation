@@ -1,37 +1,36 @@
 import { useState, useCallback } from 'react'
 import { generateId } from '@/lib/utils'
 
-// Agent definitions
 export const AGENTS = {
-  soul: {
-    id: 'soul',
-    name: 'Soul',
+  researcher: {
+    id: 'researcher',
+    name: 'Researcher',
     tagline: 'Content Research Agent',
     description: 'Researches trending ideas across platforms using Apify',
     icon: '🔮',
     colorVar: '--soul-color',
     subtleVar: '--soul-subtle',
-    greeting: "Hi, I'm **Soul** — your content research agent. I scan trending ideas across Instagram, TikTok, YouTube, and more to find what's resonating in the skincare space.\n\nClick **Scrape** to configure a new research job, or just ask me anything.",
+    greeting: "Hi, I'm **Researcher** — your content research agent. I scan trending ideas across Instagram, TikTok, YouTube, and more to find what's resonating in the skincare space.\n\nClick **Scrape** to configure a new research job, or just ask me anything.",
   },
-  max: {
-    id: 'max',
-    name: 'Max',
+  creator: {
+    id: 'creator',
+    name: 'Creator',
     tagline: 'Content Generation Agent',
     description: 'Generates polished content from researched ideas',
     icon: '✍️',
     colorVar: '--max-color',
     subtleVar: '--max-subtle',
-    greeting: "Hey, I'm **Max** — your content generation agent. Once Soul hands me a trending idea, I craft captions, scripts, and copy tailored to your brand voice.\n\nShare an idea or paste a reference and I'll get to work.",
+    greeting: "Hey, I'm **Creator** — your content generation agent. Once Researcher hands me a trending idea, I craft captions, scripts, and copy tailored to your brand voice.\n\nShare an idea or paste a reference and I'll get to work.",
   },
-  nova: {
-    id: 'nova',
-    name: 'Nova',
+  publisher: {
+    id: 'publisher',
+    name: 'Publisher',
     tagline: 'Publishing Agent',
     description: 'Publishes content across configured platforms via Publer',
     icon: '🚀',
     colorVar: '--nova-color',
     subtleVar: '--nova-subtle',
-    greeting: "Hello, I'm **Nova** — your publishing agent. I'm connected to Publer and will distribute your approved content across all configured social channels.\n\nReady to publish when you are.",
+    greeting: "Hello, I'm **Publisher** — your publishing agent. I'm connected to Publer and will distribute your approved content across all configured social channels.\n\nReady to publish when you are.",
   },
 }
 
@@ -47,13 +46,13 @@ function makeGreeting(agentId) {
 }
 
 const initialChats = {
-  soul: [makeGreeting('soul')],
-  max: [makeGreeting('max')],
-  nova: [makeGreeting('nova')],
+  researcher: [makeGreeting('researcher')],
+  creator: [makeGreeting('creator')],
+  publisher: [makeGreeting('publisher')],
 }
 
 export function useAgentChats() {
-  const [activeAgent, setActiveAgent] = useState('soul')
+  const [activeAgent, setActiveAgent] = useState('researcher')
   const [chats, setChats] = useState(initialChats)
   const [scrapeOpen, setScrapeOpen] = useState(false)
   const [isTyping, setIsTyping] = useState(false)
@@ -102,7 +101,7 @@ export function useAgentChats() {
     }
     setChats((prev) => ({
       ...prev,
-      soul: [...prev.soul, userMsg],
+      researcher: [...prev.researcher, userMsg],
     }))
 
     setIsTyping(true)
@@ -112,11 +111,11 @@ export function useAgentChats() {
         role: 'agent',
         content: `Got it! I'm starting the scrape job now. I'll research **${config.topic || 'your topic'}** across **${config.platforms?.join(', ') || 'selected platforms'}**.\n\nLooking for content with at least **${config.minLikes?.toLocaleString() || '1,000'} likes** and **${config.minViews?.toLocaleString() || '5,000'} views**, and I'll surface the top **${config.topN || 5}** ideas for you.\n\n_This may take a few minutes. I'll update you once the results are ready._`,
         timestamp: new Date(),
-        agentId: 'soul',
+        agentId: 'researcher',
       }
       setChats((prev) => ({
         ...prev,
-        soul: [...prev.soul, agentMsg],
+        researcher: [...prev.researcher, agentMsg],
       }))
       setIsTyping(false)
     }, 1500)
@@ -148,21 +147,21 @@ function formatScrapeConfig(config) {
   return lines.join('\n')
 }
 
-function getSimulatedResponse(agentId, _input) {
+function getSimulatedResponse(agentId) {
   const responses = {
-    soul: [
+    researcher: [
       "I'm scanning the latest trends across your configured platforms. Give me a moment to pull the data.",
       "That's a great angle! Let me research what's performing well in that niche right now.",
       "I'll cross-reference that with Apify's latest data. Want me to prioritize any specific platform?",
       "Looking into it. The skincare space has been buzzing lately — I'll find the top performing ideas.",
     ],
-    max: [
+    creator: [
       "Love this direction! Drafting a few caption variations for you now...",
       "Here's a first draft. I can adjust the tone — want something more educational or more lifestyle-focused?",
       "Great input. I'm crafting this with your brand voice in mind. One moment.",
       "I've got a few hooks that could work really well for this. Let me refine them.",
     ],
-    nova: [
+    publisher: [
       "Ready to schedule! Which platforms should I post this to first?",
       "I've queued this up in Publer. Want to review the schedule before it goes live?",
       "All set. The content is approved and ready for distribution across your connected channels.",

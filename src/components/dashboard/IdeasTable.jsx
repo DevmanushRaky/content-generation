@@ -67,9 +67,9 @@ const STATUS_CONFIG = {
 }
 
 const STAGE_META = {
-  soul:      { label: 'Soul',      icon: '🔮', color: 'var(--soul-color)', bg: 'var(--soul-subtle)', border: 'var(--accent-border)' },
-  max:       { label: 'Max',       icon: '✍️',  color: 'var(--max-color)',  bg: 'rgba(52,211,153,0.1)', border: 'rgba(52,211,153,0.3)' },
-  nova:      { label: 'Nova',      icon: '🚀', color: 'var(--nova-color)', bg: 'rgba(251,191,36,0.1)', border: 'rgba(251,191,36,0.3)' },
+  researcher:{ label: 'Researcher', icon: '🔮', color: 'var(--soul-color)', bg: 'var(--soul-subtle)', border: 'var(--accent-border)' },
+  creator:   { label: 'Creator',    icon: '✍️',  color: 'var(--max-color)',  bg: 'rgba(52,211,153,0.1)', border: 'rgba(52,211,153,0.3)' },
+  publisher: { label: 'Publisher',  icon: '🚀', color: 'var(--nova-color)', bg: 'rgba(251,191,36,0.1)', border: 'rgba(251,191,36,0.3)' },
   published: { label: 'Published', icon: '✅', color: '#22c55e',           bg: 'rgba(34,197,94,0.1)', border: 'rgba(34,197,94,0.28)' },
 }
 
@@ -108,7 +108,7 @@ export default function IdeasTable({ ideas, onNewResearch }) {
             No ideas yet
           </h2>
           <p style={{ fontSize: 14, color: 'var(--text-muted)', margin: 0, lineHeight: 1.6 }}>
-            Click "New Research" to let Soul discover trending content ideas for you.
+            Click "New Research" to let Researcher discover trending content ideas for you.
           </p>
         </div>
         <button
@@ -195,7 +195,7 @@ export default function IdeasTable({ ideas, onNewResearch }) {
             {ideas.map((idea, idx) => {
               const pm = PLATFORM_META[idea.platform] || PLATFORM_META.instagram
               const st = STATUS_CONFIG[idea.status]  || STATUS_CONFIG.pending
-              const sm = STAGE_META[idea.stage]       || STAGE_META.soul
+              const sm = STAGE_META[idea.stage]       || STAGE_META.researcher
               const isVideo = idea.contentType === 'video'
 
               return (

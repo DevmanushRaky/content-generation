@@ -5,21 +5,27 @@ import { DEFAULT_RESEARCH_PLATFORMS } from '@/components/dashboard/platforms'
 const LS_KEY = 'cosmetology_ideas'
 const LS_BATCH_KEY = 'cosmetology_latest_batch'
 const LS_BATCH_META_KEY = 'cosmetology_latest_batch_meta'
-const STAGE_ORDER = ['soul', 'max', 'nova', 'published']
+const STAGE_ORDER = ['researcher', 'creator', 'publisher', 'published']
+const STAGE_ALIASES = {
+  soul: 'researcher',
+  max: 'creator',
+  nova: 'publisher',
+}
 
 function daysAgo(days) {
   return new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString()
 }
 
 function normalizeIdea(idea) {
-  const stage = idea.stage || (idea.status === 'approved' ? 'max' : 'soul')
+  const stage = STAGE_ALIASES[idea.stage] || idea.stage || (idea.status === 'approved' ? 'creator' : 'researcher')
   const platform = idea.platform === 'pinterest' || idea.platform === 'reddit' ? 'twitter_ads' : idea.platform
   return { ...idea, stage, platform }
 }
 
 function nextStage(stage) {
-  const currentIndex = STAGE_ORDER.indexOf(stage)
-  if (currentIndex < 0 || currentIndex >= STAGE_ORDER.length - 1) return stage || 'soul'
+  const normalizedStage = STAGE_ALIASES[stage] || stage
+  const currentIndex = STAGE_ORDER.indexOf(normalizedStage)
+  if (currentIndex < 0 || currentIndex >= STAGE_ORDER.length - 1) return normalizedStage || 'researcher'
   return STAGE_ORDER[currentIndex + 1]
 }
 
@@ -36,7 +42,7 @@ const DUMMY_IDEAS = [
     duration: '3:12',
     trendScore: 98,
     whyPopular: 'The "glass skin" aesthetic taps into aspirational beauty with a tangible, replicable process. This video broke it into 6 numbered steps with satisfying close-up transitions between each product. The before/after at the 2:50 mark caused a massive share spike — viewers tagged friends saying "this is literally us." TikTok\'s algorithm rewarded the 92% average watch-through rate by pushing it to the "Skincare For You" FYP cluster.',
-    status: 'pending', stage: 'soul', generatedAt: daysAgo(1),
+    status: 'pending', stage: 'researcher', generatedAt: daysAgo(1),
   },
   {
     id: 'dummy-2', rank: 2, batchId: 'dummy-batch',
@@ -49,7 +55,7 @@ const DUMMY_IDEAS = [
     duration: null,
     trendScore: 94,
     whyPopular: 'Price-anchored ingredient reviews dominate Instagram saves. This carousel compared 5 drugstore vitamin C serums with identical photography — same lighting, same swatch style — which signals credibility and effort. Slide 4 (the ranking reveal) had a 78% swipe-through rate. The ₹800 cap made it instantly shareable to Indian audiences who feel priced out of imported serums.',
-    status: 'approved', stage: 'max', generatedAt: daysAgo(2),
+    status: 'approved', stage: 'creator', generatedAt: daysAgo(2),
   },
   {
     id: 'dummy-3', rank: 3, batchId: 'dummy-batch',
@@ -62,7 +68,7 @@ const DUMMY_IDEAS = [
     duration: '11:47',
     trendScore: 91,
     whyPopular: 'Trend-reaction videos perform exceptionally when the creator adds personal documentation. "I tried it for 14 days" framing creates a narrative arc that holds viewers for 11+ minutes — rare for skincare content. The thumbnail A/B tested a shocked expression vs. before/after split; the split won by 34% CTR. YouTube Shorts auto-generated from the 3:20 mark drove an additional 400K views back to the long-form.',
-    status: 'pending', stage: 'soul', generatedAt: daysAgo(3),
+    status: 'pending', stage: 'researcher', generatedAt: daysAgo(3),
   },
   {
     id: 'dummy-4', rank: 4, batchId: 'dummy-batch',
@@ -75,7 +81,7 @@ const DUMMY_IDEAS = [
     duration: null,
     trendScore: 96,
     whyPopular: 'Myth-busting with a counterintuitive hook ("SPF 100 isn\'t 2× better than SPF 50") creates immediate cognitive dissonance — the primary driver of shares and saves on Instagram. The infographic layout used brand-safe orange/white contrast that stands out in a grid of beige skincare aesthetics. Comment section debates between "knew it!" and "no way" pushed engagement to 4.2% — 3× above beauty niche average.',
-    status: 'rejected', stage: 'soul', generatedAt: daysAgo(4),
+    status: 'rejected', stage: 'researcher', generatedAt: daysAgo(4),
   },
   {
     id: 'dummy-5', rank: 5, batchId: 'dummy-batch',
@@ -88,7 +94,7 @@ const DUMMY_IDEAS = [
     duration: '4:55',
     trendScore: 97,
     whyPopular: 'Long-form personal journeys on TikTok are outliers that the algorithm rewards heavily when watch-time holds. Monthly side-by-side photos (same angle, same lighting) gave viewers a clear progression payoff. The creator\'s relatability as a South Asian woman treating post-acne marks resonated deeply with an underserved demographic. The duet + stitch count crossed 12K, turning it into a community conversation.',
-    status: 'pending', stage: 'nova', generatedAt: daysAgo(5),
+    status: 'pending', stage: 'publisher', generatedAt: daysAgo(5),
   },
   {
     id: 'dummy-6', rank: 6, batchId: 'dummy-batch',
@@ -101,7 +107,7 @@ const DUMMY_IDEAS = [
     duration: '8:22',
     trendScore: 88,
     whyPopular: 'Anti-overconsumption content is surging as audiences push back on 12-step routines. Limiting to 3 products removes decision fatigue and speaks to minimalist, sustainability-conscious Gen-Z. The video\'s search-optimised title ("2025" + "only 3 products") captured long-tail YouTube search traffic from people researching before buying. 67% of viewers clicked the Amazon affiliate links in the description.',
-    status: 'pending', stage: 'max', generatedAt: daysAgo(6),
+    status: 'pending', stage: 'creator', generatedAt: daysAgo(6),
   },
   {
     id: 'dummy-7', rank: 7, batchId: 'dummy-batch',
@@ -114,7 +120,7 @@ const DUMMY_IDEAS = [
     duration: null,
     trendScore: 85,
     whyPopular: 'Paid social creative that leans into a failure-narrative feels more human and less polished, which helps it stop the scroll. The concise headline and strong contrast make it thumb-stopping in-feed, while the educational framing drives clicks from users who are still researching retinol. This format performs well as a top-of-funnel ad because it creates curiosity before the CTA.',
-    status: 'pending', stage: 'soul', generatedAt: daysAgo(7),
+    status: 'pending', stage: 'researcher', generatedAt: daysAgo(7),
   },
 ]
 
@@ -307,7 +313,7 @@ function generateMockIdeas(config) {
       trendScore: tpl.trendScore,
       whyPopular: tpl.whyPopular,
       status: 'pending', // pending | approved | rejected
-      stage: 'soul', // soul | max | nova | published
+      stage: 'researcher', // researcher | creator | publisher | published
       generatedAt: new Date().toISOString(),
     }
   })

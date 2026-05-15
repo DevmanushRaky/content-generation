@@ -19,14 +19,14 @@ export default function ProcessingLoader() {
       background: 'var(--bg-primary)',
     }}>
 
-      {/* Animated Soul orb */}
+      {/* Animated Researcher orb */}
       <div style={{ position: 'relative', width: 96, height: 96 }}>
         {/* Outer pulse ring */}
         <div style={{
           position: 'absolute', inset: -12,
           borderRadius: '50%',
           border: '2px solid var(--accent-border)',
-          animation: 'soul-pulse 2s ease-in-out infinite',
+          animation: 'agent-pulse 2s ease-in-out infinite',
         }} />
         {/* Mid ring */}
         <div style={{
@@ -34,7 +34,7 @@ export default function ProcessingLoader() {
           borderRadius: '50%',
           border: '1.5px solid var(--accent-border)',
           opacity: 0.5,
-          animation: 'soul-pulse 2s ease-in-out infinite 0.4s',
+          animation: 'agent-pulse 2s ease-in-out infinite 0.4s',
         }} />
         {/* Core */}
         <div style={{
@@ -43,7 +43,7 @@ export default function ProcessingLoader() {
           background: 'linear-gradient(135deg, var(--accent), var(--accent-hover))',
           boxShadow: '0 0 48px rgba(124,106,247,0.5)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          animation: 'soul-spin 3s linear infinite',
+          animation: 'agent-spin 3s linear infinite',
         }}>
           <div style={{
             width: 16,
@@ -62,7 +62,7 @@ export default function ProcessingLoader() {
           color: 'var(--text-primary)', margin: '0 0 10px',
           letterSpacing: '-0.02em',
         }}>
-          Soul is working…
+          Researcher is working…
         </h2>
         <p style={{ fontSize: 14, color: 'var(--text-muted)', margin: 0, lineHeight: 1.6 }}>
           Scanning social platforms, analysing engagement patterns, and curating the best ideas for your topic.
@@ -93,11 +93,11 @@ export default function ProcessingLoader() {
       </div>
 
       <style>{`
-        @keyframes soul-pulse {
+        @keyframes agent-pulse {
           0%, 100% { transform: scale(1); opacity: 0.6; }
           50% { transform: scale(1.12); opacity: 1; }
         }
-        @keyframes soul-spin {
+        @keyframes agent-spin {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }

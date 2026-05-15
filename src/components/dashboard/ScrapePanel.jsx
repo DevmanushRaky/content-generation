@@ -172,7 +172,7 @@ export default function ScrapePanel({ onSubmit, onBack }) {
             New Research Job
           </p>
           <p style={{ fontSize: 11, color: 'var(--text-muted)', margin: 0, marginTop: 1 }}>
-            Configure a research job and Soul will surface trending content ideas
+            Configure a research job and Researcher will surface trending content ideas
           </p>
         </div>
       </div>
@@ -329,7 +329,7 @@ export default function ScrapePanel({ onSubmit, onBack }) {
               e.currentTarget.style.boxShadow = '0 4px 24px rgba(124,106,247,0.35)'
             }}
           >
-            Generate Ideas with Soul
+            Generate Ideas with Researcher
             <ArrowRight size={16} />
           </button>
 

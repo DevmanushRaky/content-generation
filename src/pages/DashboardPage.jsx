@@ -7,9 +7,9 @@ import { useIdeas } from '@/hooks/useIdeas'
 import { Menu } from 'lucide-react'
 
 const AGENTS = [
-  { id: 'soul', label: 'Soul', icon: '🔮', tagline: 'Content Research',    color: 'var(--soul-color)', subtle: 'var(--soul-subtle)',         border: 'var(--accent-border)' },
-  { id: 'max',  label: 'Max',  icon: '✍️',  tagline: 'Content Generation', color: 'var(--max-color)',  subtle: 'rgba(52,211,153,0.12)',     border: 'rgba(52,211,153,0.35)' },
-  { id: 'nova', label: 'Nova', icon: '🚀', tagline: 'Publishing',           color: 'var(--nova-color)', subtle: 'rgba(251,191,36,0.12)',     border: 'rgba(251,191,36,0.35)' },
+  { id: 'researcher', label: 'Researcher', icon: '🔮', tagline: 'Content Research',    color: 'var(--soul-color)', subtle: 'var(--soul-subtle)',         border: 'var(--accent-border)' },
+  { id: 'creator', label: 'Creator', icon: '✍️',  tagline: 'Content Generation', color: 'var(--max-color)',  subtle: 'rgba(52,211,153,0.12)',     border: 'rgba(52,211,153,0.35)' },
+  { id: 'publisher', label: 'Publisher', icon: '🚀', tagline: 'Publishing',           color: 'var(--nova-color)', subtle: 'rgba(251,191,36,0.12)',     border: 'rgba(251,191,36,0.35)' },
 ]
 
 function AgentPlaceholder({ agent }) {
@@ -31,9 +31,11 @@ function AgentPlaceholder({ agent }) {
           {agent.label} — {agent.tagline}
         </h2>
         <p style={{ fontSize: 14, color: 'var(--text-muted)', margin: 0, lineHeight: 1.7 }}>
-          {agent.id === 'max'
-            ? 'Once Soul surfaces trending ideas, Max will craft polished captions, scripts, and copy tailored to your brand voice. Coming soon.'
-            : 'Nova connects to Publer and distributes your approved content across all configured social channels automatically. Coming soon.'}
+          {agent.id === 'creator'
+            ? 'Once Researcher surfaces trending ideas, Creator will craft polished captions, scripts, and copy tailored to your brand voice. Coming soon.'
+            : agent.id === 'publisher'
+              ? 'Publisher connects to Publer and distributes your approved content across all configured social channels automatically. Coming soon.'
+              : 'Researcher scans trends across platforms and surfaces what is resonating right now. Coming soon.'}
         </p>
       </div>
       <div style={{
@@ -48,7 +50,7 @@ function AgentPlaceholder({ agent }) {
 }
 
 export default function DashboardPage({ onMenuOpen, isMobile }) {
-  const [activeAgent, setActiveAgent] = useState('soul')
+  const [activeAgent, setActiveAgent] = useState('researcher')
   const navigate = useNavigate()
   const location = useLocation()
   const { view, ideas, runScrapeJob, resetToScrape, goHome } = useIdeas()
@@ -72,7 +74,7 @@ export default function DashboardPage({ onMenuOpen, isMobile }) {
   }, [view, navigate])
 
   const agent = AGENTS.find(a => a.id === activeAgent)
-  const isSoul = activeAgent === 'soul'
+  const isResearcher = activeAgent === 'researcher'
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
@@ -148,19 +150,19 @@ export default function DashboardPage({ onMenuOpen, isMobile }) {
 
       {/* ── Main content area ── */}
       <div style={{ flex: 1, overflow: 'hidden', display: 'flex', minHeight: 0 }}>
-        {isSoul && view === 'home' && (
+        {isResearcher && view === 'home' && (
           <IdeasTable
             ideas={ideas}
             onNewResearch={resetToScrape}
           />
         )}
-        {isSoul && view === 'scrape' && (
+        {isResearcher && view === 'scrape' && (
           <ScrapePanel onSubmit={runScrapeJob} onBack={goHome} />
         )}
-        {isSoul && view === 'processing' && (
+        {isResearcher && view === 'processing' && (
           <ProcessingLoader />
         )}
-        {!isSoul && (
+        {!isResearcher && (
           <AgentPlaceholder agent={agent} />
         )}
       </div>

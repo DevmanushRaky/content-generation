@@ -45,9 +45,9 @@ export default function ChatPanel({ activeAgent, messages, isTyping, onSend, isM
   }, [messages, isTyping])
 
   const placeholder = {
-    soul: 'Ask Soul to research trends, compare platforms…',
-    max: 'Ask Max to write a caption, draft a script…',
-    nova: 'Ask Nova to schedule or publish content…',
+    researcher: 'Ask Researcher to research trends, compare platforms…',
+    creator: 'Ask Creator to write a caption, draft a script…',
+    publisher: 'Ask Publisher to schedule or publish content…',
   }[activeAgent]
 
   return (

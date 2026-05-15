@@ -8,9 +8,9 @@ const STATUS_META = {
 }
 
 const STAGE_META = {
-  soul:      { label: 'Soul',      color: 'var(--soul-color)', bg: 'var(--soul-subtle)', border: 'var(--accent-border)' },
-  max:       { label: 'Max',       color: 'var(--max-color)',  bg: 'var(--max-subtle)', border: 'rgba(52,211,153,0.35)' },
-  nova:      { label: 'Nova',      color: 'var(--nova-color)', bg: 'var(--nova-subtle)', border: 'rgba(251,191,36,0.35)' },
+  researcher:{ label: 'Researcher', color: 'var(--soul-color)', bg: 'var(--soul-subtle)', border: 'var(--accent-border)' },
+  creator:   { label: 'Creator',    color: 'var(--max-color)',  bg: 'var(--max-subtle)', border: 'rgba(52,211,153,0.35)' },
+  publisher: { label: 'Publisher',  color: 'var(--nova-color)', bg: 'var(--nova-subtle)', border: 'rgba(251,191,36,0.35)' },
   published: { label: 'Published', color: '#8b5cf6',           bg: 'rgba(139,92,246,0.1)', border: 'rgba(139,92,246,0.25)' },
 }
 
@@ -144,7 +144,7 @@ export default function IdeasHistoryTable({ ideas, onNewResearch }) {
               <tbody>
                 {orderedIdeas.map((idea, idx) => {
                   const status = STATUS_META[idea.status] || STATUS_META.pending
-                  const stage = STAGE_META[idea.stage] || STAGE_META.soul
+                  const stage = STAGE_META[idea.stage] || STAGE_META.researcher
 
                   return (
                     <tr

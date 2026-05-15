@@ -67,7 +67,7 @@ export default function GenerateIdeasPage({ onMenuOpen, isMobile }) {
             </p>
             {!isMobile && (
               <p style={{ fontSize: 11, color: 'var(--text-muted)', margin: 0 }}>
-                {hashtagLine || "Soul's research results — approve the ideas you want to move forward with"}
+                {hashtagLine || "Researcher's results — approve the ideas you want to move forward with"}
               </p>
             )}
           </div>
@@ -128,7 +128,7 @@ function EmptyState({ onGenerate }) {
           No ideas yet
         </h2>
         <p style={{ fontSize: 14, color: 'var(--text-muted)', margin: 0, lineHeight: 1.6 }}>
-          Run a research job from the Dashboard and Soul will surface trending ideas here.
+          Run a research job from the Dashboard and Researcher will surface trending ideas here.
         </p>
       </div>
       <button
