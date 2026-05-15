@@ -263,7 +263,7 @@ function IdeaCard({ idea, onApprove, onReject }) {
   )
 }
 
-export default function IdeasBoard({ ideas, onApprove, onReject, onNewResearch }) {
+export default function IdeasBoard({ ideas, onApprove, onReject, onNewResearch: _onNewResearch }) {
 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', background: 'var(--bg-primary)' }}>

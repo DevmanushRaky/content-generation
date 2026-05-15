@@ -1,7 +1,14 @@
 import { useState, useRef, useEffect } from 'react'
 import { Send } from 'lucide-react'
 
-export default function ChatInput({ onSend, disabled, placeholder, isMobile }) {
+type ChatInputProps = {
+  onSend: (_content: string) => void
+  disabled: boolean
+  placeholder?: string
+  isMobile: boolean
+}
+
+export default function ChatInput({ onSend, disabled, placeholder, isMobile }: ChatInputProps) {
   const [value, setValue] = useState('')
   const textareaRef = useRef(null)
 

@@ -1,9 +1,14 @@
 import { formatTime } from '@/lib/utils'
 import { AGENTS } from '@/hooks/useAgentChats'
+import type { AgentMessage } from '@/hooks/useAgentChats'
 
-export default function ChatMessage({ message }) {
+type ChatMessageProps = {
+  message: AgentMessage
+}
+
+export default function ChatMessage({ message }: ChatMessageProps) {
   const isUser = message.role === 'user'
-  const agent = !isUser ? AGENTS[message.agentId] : null
+  const agent = !isUser && message.agentId ? AGENTS[message.agentId] : null
 
   return (
     <div
@@ -69,7 +74,7 @@ export default function ChatMessage({ message }) {
   )
 }
 
-function MarkdownContent({ content, isUser }) {
+function MarkdownContent({ content, isUser: _isUser }) {
   // Simple markdown-like rendering without extra dep
   const lines = content.split('\n')
   const rendered = []

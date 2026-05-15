@@ -1,7 +1,38 @@
 import { useState, useCallback } from 'react'
 import { generateId } from '@/lib/utils'
 
-export const AGENTS = {
+export type AgentId = 'researcher' | 'creator' | 'publisher'
+
+export type AgentMessage = {
+  id: string
+  role: 'agent' | 'user'
+  content: string
+  timestamp: Date
+  agentId?: AgentId
+  isScrapeJob?: boolean
+}
+
+export type AgentDefinition = {
+  id: AgentId
+  name: string
+  tagline: string
+  description: string
+  icon: string
+  colorVar: string
+  subtleVar: string
+  greeting: string
+}
+
+type ScrapeConfig = {
+  topic?: string
+  hashtags?: string[]
+  platforms?: string[]
+  minLikes?: number | string
+  minViews?: number | string
+  topN?: number
+}
+
+export const AGENTS: Record<AgentId, AgentDefinition> = {
   researcher: {
     id: 'researcher',
     name: 'Researcher',
@@ -34,7 +65,7 @@ export const AGENTS = {
   },
 }
 
-function makeGreeting(agentId) {
+function makeGreeting(agentId: AgentId): AgentMessage {
   const agent = AGENTS[agentId]
   return {
     id: generateId(),
@@ -45,22 +76,22 @@ function makeGreeting(agentId) {
   }
 }
 
-const initialChats = {
+const initialChats: Record<AgentId, AgentMessage[]> = {
   researcher: [makeGreeting('researcher')],
   creator: [makeGreeting('creator')],
   publisher: [makeGreeting('publisher')],
 }
 
 export function useAgentChats() {
-  const [activeAgent, setActiveAgent] = useState('researcher')
-  const [chats, setChats] = useState(initialChats)
+  const [activeAgent, setActiveAgent] = useState<AgentId>('researcher')
+  const [chats, setChats] = useState<Record<AgentId, AgentMessage[]>>(initialChats)
   const [scrapeOpen, setScrapeOpen] = useState(false)
   const [isTyping, setIsTyping] = useState(false)
 
-  const sendMessage = useCallback((content) => {
+  const sendMessage = useCallback((content: string) => {
     if (!content.trim()) return
 
-    const userMsg = {
+    const userMsg: AgentMessage = {
       id: generateId(),
       role: 'user',
       content,
@@ -75,10 +106,10 @@ export function useAgentChats() {
     // Simulate agent typing response
     setIsTyping(true)
     setTimeout(() => {
-      const agentMsg = {
+      const agentMsg: AgentMessage = {
         id: generateId(),
         role: 'agent',
-        content: getSimulatedResponse(activeAgent, content),
+        content: getSimulatedResponse(activeAgent),
         timestamp: new Date(),
         agentId: activeAgent,
       }
@@ -90,9 +121,9 @@ export function useAgentChats() {
     }, 1200 + Math.random() * 800)
   }, [activeAgent])
 
-  const sendScrapeJob = useCallback((config) => {
+  const sendScrapeJob = useCallback((config: ScrapeConfig) => {
     const summary = formatScrapeConfig(config)
-    const userMsg = {
+    const userMsg: AgentMessage = {
       id: generateId(),
       role: 'user',
       content: summary,
@@ -106,7 +137,7 @@ export function useAgentChats() {
 
     setIsTyping(true)
     setTimeout(() => {
-      const agentMsg = {
+      const agentMsg: AgentMessage = {
         id: generateId(),
         role: 'agent',
         content: `Got it! I'm starting the scrape job now. I'll research **${config.topic || 'your topic'}** across **${config.platforms?.join(', ') || 'selected platforms'}**.\n\nLooking for content with at least **${config.minLikes?.toLocaleString() || '1,000'} likes** and **${config.minViews?.toLocaleString() || '5,000'} views**, and I'll surface the top **${config.topN || 5}** ideas for you.\n\n_This may take a few minutes. I'll update you once the results are ready._`,
@@ -147,8 +178,8 @@ function formatScrapeConfig(config) {
   return lines.join('\n')
 }
 
-function getSimulatedResponse(agentId) {
-  const responses = {
+function getSimulatedResponse(agentId: AgentId) {
+  const responses: Record<AgentId, string[]> = {
     researcher: [
       "I'm scanning the latest trends across your configured platforms. Give me a moment to pull the data.",
       "That's a great angle! Let me research what's performing well in that niche right now.",

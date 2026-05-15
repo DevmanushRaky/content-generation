@@ -1,5 +1,6 @@
 import { FileText, Layers3 } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
+import type { Idea } from '@/hooks/useIdeas'
 
 const STATUS_META = {
   pending:  { label: 'Pending',  color: 'var(--text-muted)', bg: 'var(--bg-elevated)', border: 'var(--border)' },
@@ -34,8 +35,13 @@ function Badge({ label, color, bg, border }) {
   )
 }
 
-export default function IdeasHistoryTable({ ideas, onNewResearch }) {
-  const orderedIdeas = [...ideas].sort((a, b) => new Date(b.generatedAt) - new Date(a.generatedAt))
+type IdeasHistoryTableProps = {
+  ideas: Idea[]
+  onNewResearch: () => void
+}
+
+export default function IdeasHistoryTable({ ideas, onNewResearch }: IdeasHistoryTableProps) {
+  const orderedIdeas = [...ideas].sort((a, b) => new Date(b.generatedAt ?? 0).getTime() - new Date(a.generatedAt ?? 0).getTime())
 
   return (
     <div style={{
@@ -144,7 +150,7 @@ export default function IdeasHistoryTable({ ideas, onNewResearch }) {
               <tbody>
                 {orderedIdeas.map((idea, idx) => {
                   const status = STATUS_META[idea.status] || STATUS_META.pending
-                  const stage = STAGE_META[idea.stage] || STAGE_META.researcher
+                  const stage = STAGE_META[idea.stage as keyof typeof STAGE_META] || STAGE_META.researcher
 
                   return (
                     <tr

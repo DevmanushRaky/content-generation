@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import ChatMessage from './ChatMessage'
 import ChatInput from './ChatInput'
 import { AGENTS } from '@/hooks/useAgentChats'
+import type { AgentId, AgentMessage } from '@/hooks/useAgentChats'
 
 function TypingIndicator({ agent }) {
   return (
@@ -36,7 +37,15 @@ function EmptyState({ agent }) {
   )
 }
 
-export default function ChatPanel({ activeAgent, messages, isTyping, onSend, isMobile }) {
+type ChatPanelProps = {
+  activeAgent: AgentId
+  messages: AgentMessage[]
+  isTyping: boolean
+  onSend: (_content: string) => void
+  isMobile: boolean
+}
+
+export default function ChatPanel({ activeAgent, messages, isTyping, onSend, isMobile }: ChatPanelProps) {
   const agent = AGENTS[activeAgent]
   const bottomRef = useRef(null)
 

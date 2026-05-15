@@ -5,32 +5,82 @@ import { DEFAULT_RESEARCH_PLATFORMS } from '@/components/dashboard/platforms'
 const LS_KEY = 'cosmetology_ideas'
 const LS_BATCH_KEY = 'cosmetology_latest_batch'
 const LS_BATCH_META_KEY = 'cosmetology_latest_batch_meta'
-const STAGE_ORDER = ['researcher', 'creator', 'publisher', 'published']
+export type StageId = 'researcher' | 'creator' | 'publisher' | 'published'
+type LegacyStageId = 'soul' | 'max' | 'nova'
+type StatusId = 'pending' | 'approved' | 'rejected'
+type PlatformId = 'instagram' | 'tiktok' | 'youtube' | 'twitter' | 'twitter_ads' | 'pinterest' | 'reddit'
+
+export type Idea = {
+  id: string
+  rank?: number
+  batchId?: string
+  topicHeading?: string
+  topic?: string
+  platform: PlatformId
+  contentType: 'video' | 'image'
+  sourceUrl?: string
+  likes?: number | null
+  likesFormatted?: string | null
+  views?: number | null
+  viewsFormatted?: string | null
+  duration?: string | null
+  trendScore?: number
+  whyPopular?: string
+  status: StatusId
+  stage: StageId | LegacyStageId
+  generatedAt?: string
+}
+
+export type BatchMeta = {
+  topic: string
+  hashtags: string[]
+  platforms?: string[]
+  topN?: number
+}
+
+type ScrapeConfig = {
+  topic?: string
+  hashtags?: string[]
+  platforms?: string[]
+  minLikes?: string
+  minViews?: string
+  topN?: number
+}
+
+type IdeaTemplate = {
+  topicHeading: string
+  platform: PlatformId
+  contentType: 'video' | 'image'
+  trendScore: number
+  whyPopular: string
+}
+
+const STAGE_ORDER: StageId[] = ['researcher', 'creator', 'publisher', 'published']
 const STAGE_ALIASES = {
   soul: 'researcher',
   max: 'creator',
   nova: 'publisher',
-}
+} as const
 
-function daysAgo(days) {
+function daysAgo(days: number) {
   return new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString()
 }
 
-function normalizeIdea(idea) {
-  const stage = STAGE_ALIASES[idea.stage] || idea.stage || (idea.status === 'approved' ? 'creator' : 'researcher')
+function normalizeIdea(idea: Idea): Idea {
+  const stage = STAGE_ALIASES[idea.stage as LegacyStageId] || idea.stage || (idea.status === 'approved' ? 'creator' : 'researcher')
   const platform = idea.platform === 'pinterest' || idea.platform === 'reddit' ? 'twitter_ads' : idea.platform
-  return { ...idea, stage, platform }
+  return { ...idea, stage: stage as StageId, platform }
 }
 
-function nextStage(stage) {
-  const normalizedStage = STAGE_ALIASES[stage] || stage
+function nextStage(stage: StageId | LegacyStageId) {
+  const normalizedStage = (STAGE_ALIASES[stage as LegacyStageId] || stage) as StageId
   const currentIndex = STAGE_ORDER.indexOf(normalizedStage)
   if (currentIndex < 0 || currentIndex >= STAGE_ORDER.length - 1) return normalizedStage || 'researcher'
   return STAGE_ORDER[currentIndex + 1]
 }
 
 // ─── Dummy seed data shown on first load ───────────────────────────────────
-const DUMMY_IDEAS = [
+const DUMMY_IDEAS: Idea[] = [
   {
     id: 'dummy-1', rank: 1, batchId: 'dummy-batch',
     topicHeading: 'Glass Skin Routine: Step-by-Step for Beginners',
@@ -124,7 +174,7 @@ const DUMMY_IDEAS = [
   },
 ]
 
-function loadIdeas() {
+function loadIdeas(): Idea[] {
   try {
     const raw = localStorage.getItem(LS_KEY)
     if (raw) {
@@ -142,7 +192,7 @@ function loadIdeas() {
   }
 }
 
-function saveIdeas(ideas) {
+function saveIdeas(ideas: Idea[]) {
   try {
     localStorage.setItem(LS_KEY, JSON.stringify(ideas))
   } catch (error) {
@@ -150,7 +200,7 @@ function saveIdeas(ideas) {
   }
 }
 
-function loadBatchMeta() {
+function loadBatchMeta(): BatchMeta {
   try {
     const raw = localStorage.getItem(LS_BATCH_META_KEY)
     if (!raw) return { topic: '', hashtags: [] }
@@ -164,7 +214,7 @@ function loadBatchMeta() {
   }
 }
 
-function saveBatchMeta(meta) {
+function saveBatchMeta(meta: BatchMeta) {
   try {
     localStorage.setItem(LS_BATCH_META_KEY, JSON.stringify(meta))
   } catch (error) {
@@ -173,7 +223,7 @@ function saveBatchMeta(meta) {
 }
 
 // Realistic-looking mock source URLs per platform
-function mockUrl(platform) {
+function mockUrl(platform: PlatformId) {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
   const rand = (len) => Array.from({ length: len }, () => chars[Math.floor(Math.random() * chars.length)]).join('')
   const num = () => Math.floor(Math.random() * 9e15 + 1e15)
@@ -207,7 +257,7 @@ function fmtNum(n) {
   return String(n)
 }
 
-const IDEA_TEMPLATES = [
+const IDEA_TEMPLATES: IdeaTemplate[] = [
   {
     topicHeading: '7-Day Glow Challenge',
     platform: 'tiktok',
@@ -280,7 +330,7 @@ const IDEA_TEMPLATES = [
   },
 ]
 
-function generateMockIdeas(config) {
+function generateMockIdeas(config: ScrapeConfig): Idea[] {
   const topN = config.topN || 5
   const topic = config.topic || 'skincare'
   const chosenPlatforms = config.platforms?.length ? config.platforms : DEFAULT_RESEARCH_PLATFORMS
@@ -302,7 +352,7 @@ function generateMockIdeas(config) {
       rank: idx + 1,
       topicHeading: tpl.topicHeading,
       topic,
-      platform: tpl.platform,
+      platform: tpl.platform as PlatformId,
       contentType: tpl.contentType,
       sourceUrl,
       likes,
@@ -312,7 +362,7 @@ function generateMockIdeas(config) {
       viewsFormatted: views ? fmtNum(views) : null,
       trendScore: tpl.trendScore,
       whyPopular: tpl.whyPopular,
-      status: 'pending', // pending | approved | rejected
+      status: 'pending' as StatusId, // pending | approved | rejected
       stage: 'researcher', // researcher | creator | publisher | published
       generatedAt: new Date().toISOString(),
     }
@@ -320,27 +370,27 @@ function generateMockIdeas(config) {
 }
 
 export function useIdeas() {
-  const [ideas, setIdeas] = useState(() => loadIdeas())
+  const [ideas, setIdeas] = useState<Idea[]>(() => loadIdeas())
   const [processing, setProcessing] = useState(false)
-  const [view, setView] = useState(ideas.length > 0 ? 'home' : 'scrape')
+  const [view, setView] = useState<'home' | 'scrape' | 'processing'>(ideas.length > 0 ? 'home' : 'scrape')
   const [latestBatchId, setLatestBatchId] = useState(
     () => localStorage.getItem(LS_BATCH_KEY) || 'dummy-batch'
   )
-  const [latestBatchMeta, setLatestBatchMeta] = useState(() => loadBatchMeta())
+  const [latestBatchMeta, setLatestBatchMeta] = useState<BatchMeta>(() => loadBatchMeta())
 
-  const runScrapeJob = useCallback((config) => {
+  const runScrapeJob = useCallback((config: ScrapeConfig) => {
     setView('processing')
     setProcessing(true)
     const batchId = `batch-${Date.now()}`
     setTimeout(() => {
-      const newIdeas = generateMockIdeas(config).map(idea => ({ ...idea, batchId }))
+      const newIdeas: Idea[] = generateMockIdeas(config).map(idea => ({ ...idea, batchId } as Idea))
       setIdeas(prev => {
         const next = [...newIdeas, ...prev].map(normalizeIdea)
         saveIdeas(next)
         return next
       })
       localStorage.setItem(LS_BATCH_KEY, batchId)
-      const nextMeta = {
+      const nextMeta: BatchMeta = {
         topic: config.topic || '',
         hashtags: Array.isArray(config.hashtags) ? config.hashtags : [],
         platforms: Array.isArray(config.platforms) ? config.platforms : [],
@@ -354,17 +404,17 @@ export function useIdeas() {
     }, 3500)
   }, [])
 
-  const approveIdea = useCallback((id) => {
+  const approveIdea = useCallback((id: string) => {
     setIdeas(prev => {
-      const next = prev.map(i => i.id === id ? { ...i, status: 'approved', stage: nextStage(i.stage) } : i)
+      const next = prev.map(i => i.id === id ? { ...i, status: 'approved' as StatusId, stage: nextStage(i.stage) } : i)
       saveIdeas(next)
       return next
     })
   }, [])
 
-  const rejectIdea = useCallback((id) => {
+  const rejectIdea = useCallback((id: string) => {
     setIdeas(prev => {
-      const next = prev.map(i => i.id === id ? { ...i, status: 'rejected' } : i)
+      const next = prev.map(i => i.id === id ? { ...i, status: 'rejected' as StatusId } : i)
       saveIdeas(next)
       return next
     })

@@ -6,7 +6,19 @@ import IdeasTable from '@/components/dashboard/IdeasTable'
 import { useIdeas } from '@/hooks/useIdeas'
 import { Menu } from 'lucide-react'
 
-const AGENTS = [
+type AgentId = 'researcher' | 'creator' | 'publisher'
+
+type AgentCard = {
+  id: AgentId
+  label: string
+  icon: string
+  tagline: string
+  color: string
+  subtle: string
+  border: string
+}
+
+const AGENTS: AgentCard[] = [
   { id: 'researcher', label: 'Researcher', icon: '🔮', tagline: 'Content Research',    color: 'var(--soul-color)', subtle: 'var(--soul-subtle)',         border: 'var(--accent-border)' },
   { id: 'creator', label: 'Creator', icon: '✍️',  tagline: 'Content Generation', color: 'var(--max-color)',  subtle: 'rgba(52,211,153,0.12)',     border: 'rgba(52,211,153,0.35)' },
   { id: 'publisher', label: 'Publisher', icon: '🚀', tagline: 'Publishing',           color: 'var(--nova-color)', subtle: 'rgba(251,191,36,0.12)',     border: 'rgba(251,191,36,0.35)' },
@@ -50,7 +62,7 @@ function AgentPlaceholder({ agent }) {
 }
 
 export default function DashboardPage({ onMenuOpen, isMobile }) {
-  const [activeAgent, setActiveAgent] = useState('researcher')
+  const [activeAgent, setActiveAgent] = useState<AgentId>('researcher')
   const navigate = useNavigate()
   const location = useLocation()
   const { view, ideas, runScrapeJob, resetToScrape, goHome } = useIdeas()
@@ -73,7 +85,7 @@ export default function DashboardPage({ onMenuOpen, isMobile }) {
     prevView.current = view
   }, [view, navigate])
 
-  const agent = AGENTS.find(a => a.id === activeAgent)
+  const agent = AGENTS.find(a => a.id === activeAgent) ?? AGENTS[0]
   const isResearcher = activeAgent === 'researcher'
 
   return (

@@ -30,7 +30,6 @@ export default function App() {
   }
 
   // On mobile, sidebar is always full-width overlay, never collapsed
-  const showSidebar = isMobile ? mobileOpen : true
   const sidebarCollapsed = isMobile ? false : collapsed
 
   return (

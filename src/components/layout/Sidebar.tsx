@@ -164,7 +164,7 @@ export default function Sidebar({ theme, onToggleTheme, collapsed, onToggleColla
   )
 }
 
-function SidebarBtn({ icon, label, collapsed, onClick, title, className }) {
+function SidebarBtn({ icon, label, collapsed, onClick, title, className }: { icon: any; label: string; collapsed: boolean; onClick: () => void; title?: string; className?: string }) {
   return (
     <button
       title={title}

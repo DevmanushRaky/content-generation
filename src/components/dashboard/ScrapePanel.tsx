@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import type { CSSProperties } from 'react'
 import { Search, Hash, Globe, Heart, Eye, Lightbulb, X, ArrowRight } from 'lucide-react'
 import { PLATFORMS } from './platforms'
 
@@ -16,7 +17,21 @@ function SectionLabel({ icon: Icon, label }) {
   )
 }
 
-const baseInput = {
+type ResearchForm = {
+  topic: string
+  hashtags: string[]
+  platforms: string[]
+  minLikes: string
+  minViews: string
+  topN: number
+}
+
+type ScrapePanelProps = {
+  onSubmit: (_form: Omit<ResearchForm, 'topN'> & { topN: number }) => void
+  onBack: () => void
+}
+
+const baseInput: CSSProperties = {
   width: '100%',
   background: 'var(--bg-primary)',
   border: '1px solid var(--border)',
@@ -39,7 +54,7 @@ const focusOut = e => {
   e.target.style.boxShadow = 'none'
 }
 
-function TagInput({ tags, onChange }) {
+function TagInput({ tags, onChange }: { tags: string[]; onChange: (_tags: string[]) => void }) {
   const [input, setInput] = useState('')
 
   function addTag(val) {
@@ -94,18 +109,18 @@ function TagInput({ tags, onChange }) {
   )
 }
 
-export default function ScrapePanel({ onSubmit, onBack }) {
-  const [form, setForm] = useState({
+export default function ScrapePanel({ onSubmit, onBack }: ScrapePanelProps) {
+  const [form, setForm] = useState<ResearchForm>({
     topic: '', hashtags: [], platforms: [], minLikes: '', minViews: '', topN: 5,
   })
-  const [errors, setErrors] = useState({})
+  const [errors, setErrors] = useState<Record<string, string | null>>({})
 
-  function set(key, val) {
+  function set<K extends keyof ResearchForm>(key: K, val: ResearchForm[K]) {
     setForm(prev => ({ ...prev, [key]: val }))
     if (errors[key]) setErrors(prev => ({ ...prev, [key]: null }))
   }
 
-  function togglePlatform(id) {
+  function togglePlatform(id: string) {
     set('platforms', form.platforms.includes(id)
       ? form.platforms.filter(p => p !== id)
       : [...form.platforms, id]
@@ -113,15 +128,14 @@ export default function ScrapePanel({ onSubmit, onBack }) {
   }
 
   function validate() {
-    const e = {}
+    const e: Record<string, string> = {}
     if (!form.topic.trim()) e.topic = 'Topic is required'
     if (!form.platforms.length) e.platforms = 'Select at least one platform'
     setErrors(e)
     return Object.keys(e).length === 0
   }
 
-  function handleSubmit(e) {
-    e.preventDefault()
+  function handleSubmit() {
     if (validate()) onSubmit({ ...form, topN: Number(form.topN) || 5 })
   }
 

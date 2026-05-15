@@ -1,12 +1,19 @@
 import { AGENTS } from '@/hooks/useAgentChats'
+import type { AgentId, AgentDefinition } from '@/hooks/useAgentChats'
 import { ChevronDown } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 
-export default function AgentSelector({ activeAgent, onSelect }) {
+type AgentSelectorProps = {
+  activeAgent: AgentId
+  onSelect: (_id: AgentId) => void
+}
+
+export default function AgentSelector({ activeAgent, onSelect }: AgentSelectorProps) {
   const [open, setOpen] = useState(false)
   const [dropPos, setDropPos] = useState({ top: 0, left: 0 })
   const btnRef = useRef(null)
   const agent = AGENTS[activeAgent]
+  const agentList = Object.values(AGENTS) as AgentDefinition[]
 
   useEffect(() => {
     function handleClick(e) {
@@ -57,7 +64,7 @@ export default function AgentSelector({ activeAgent, onSelect }) {
             boxShadow: '0 16px 48px rgba(0,0,0,0.3)',
           }}
         >
-          {Object.values(AGENTS).map(a => (
+          {agentList.map(a => (
             <button
               key={a.id}
               onClick={() => { onSelect(a.id); setOpen(false) }}

@@ -1,8 +1,9 @@
 import { useState } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import { Eye, EyeOff, Edit2, Trash2, Check, X } from 'lucide-react'
 
 const cellPad = { padding: '14px 20px' }
-const inputStyle = {
+const inputStyle: CSSProperties = {
   width: '100%',
   background: 'var(--bg-primary)',
   border: '1px solid var(--border)',
@@ -15,7 +16,7 @@ const inputStyle = {
   transition: 'border-color 0.15s, box-shadow 0.15s',
 }
 
-function StyledInput({ value, onChange, placeholder }) {
+function StyledInput({ value, onChange, placeholder }: { value: string; onChange: (_value: string) => void; placeholder: string }) {
   return (
     <input
       value={value}
@@ -34,7 +35,7 @@ function StyledInput({ value, onChange, placeholder }) {
   )
 }
 
-function ActionBtn({ onClick, title, children, danger }) {
+function ActionBtn({ onClick, title, children, danger }: { onClick: () => void; title: string; children: ReactNode; danger?: boolean }) {
   return (
     <button
       onClick={onClick}
@@ -60,7 +61,7 @@ function ActionBtn({ onClick, title, children, danger }) {
 }
 
 // ── Add Row ───────────────────────────────────────────────────────────────────
-export function AddEnvVarRow({ onAdd, onCancel }) {
+export function AddEnvVarRow({ onAdd, onCancel }: { onAdd: (_key: string, _value: string) => void; onCancel: () => void }) {
   const [key, setKey] = useState('')
   const [value, setValue] = useState('')
 
@@ -101,7 +102,7 @@ export function AddEnvVarRow({ onAdd, onCancel }) {
 }
 
 // ── Edit Row ──────────────────────────────────────────────────────────────────
-export function EditEnvVarRow({ envVar, onSave, onCancel }) {
+export function EditEnvVarRow({ envVar, onSave, onCancel }: { envVar: { id: string; key: string; value: string }; onSave: (_id: string, _key: string, _value: string) => void; onCancel: () => void }) {
   const [key, setKey] = useState(envVar.key)
   const [value, setValue] = useState(envVar.value)
 
@@ -142,7 +143,15 @@ export function EditEnvVarRow({ envVar, onSave, onCancel }) {
 }
 
 // ── Display Row ───────────────────────────────────────────────────────────────
-export function EnvVarRow({ envVar, revealed, onReveal, onEdit, onDelete, deleteConfirm, setDeleteConfirm }) {
+export function EnvVarRow({ envVar, revealed, onReveal, onEdit, onDelete, deleteConfirm, setDeleteConfirm }: {
+  envVar: { id: string; key: string; value: string }
+  revealed: Set<string>
+  onReveal: (id: string) => void
+  onEdit: (id: string) => void
+  onDelete: (id: string) => void
+  deleteConfirm: string | null
+  setDeleteConfirm: (id: string | null) => void
+}) {
   const isDeleteConfirm = deleteConfirm === envVar.id
   const isRevealed = revealed.has(envVar.id)
   const displayValue = isRevealed ? envVar.value : '•'.repeat(Math.min(envVar.value.length, 28))

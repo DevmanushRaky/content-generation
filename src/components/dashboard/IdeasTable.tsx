@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { Heart, Eye, Clock, ArrowRight, Play } from 'lucide-react'
+import type { Idea } from '@/hooks/useIdeas'
 
 // Inline SVG brand icons — real platform logos
 function InstagramIcon({ size = 14 }) {
@@ -77,7 +78,7 @@ function formatDate(iso) {
   if (!iso) return '—'
   const d = new Date(iso)
   const now = new Date()
-  const diffMs = now - d
+  const diffMs = now.getTime() - d.getTime()
   const diffMins = Math.floor(diffMs / 60000)
   const diffHours = Math.floor(diffMs / 3600000)
   const diffDays = Math.floor(diffMs / 86400000)
@@ -88,7 +89,12 @@ function formatDate(iso) {
   return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
 }
 
-export default function IdeasTable({ ideas, onNewResearch }) {
+type IdeasTableProps = {
+  ideas: Idea[]
+  onNewResearch: () => void
+}
+
+export default function IdeasTable({ ideas, onNewResearch }: IdeasTableProps) {
   const navigate = useNavigate()
 
   if (ideas.length === 0) {
@@ -195,7 +201,7 @@ export default function IdeasTable({ ideas, onNewResearch }) {
             {ideas.map((idea, idx) => {
               const pm = PLATFORM_META[idea.platform] || PLATFORM_META.instagram
               const st = STATUS_CONFIG[idea.status]  || STATUS_CONFIG.pending
-              const sm = STAGE_META[idea.stage]       || STAGE_META.researcher
+              const sm = STAGE_META[idea.stage as keyof typeof STAGE_META] || STAGE_META.researcher
               const isVideo = idea.contentType === 'video'
 
               return (
@@ -220,7 +226,7 @@ export default function IdeasTable({ ideas, onNewResearch }) {
                   {/* Topic */}
                   <td style={{ padding: '13px 14px', maxWidth: 240 }}>
                     <p style={{ margin: 0, fontWeight: 600, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 220 }}>
-                      {idea.topicHeading || idea.title || '—'}
+                      {idea.topicHeading || '—'}
                     </p>
                     <p style={{ margin: '2px 0 0', fontSize: 11, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 220 }}>
                       {idea.topic}
