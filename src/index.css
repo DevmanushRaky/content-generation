@@ -1,0 +1,216 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+/* ──────────────────────────────────────────────
+   CSS Custom Properties — Design Tokens
+   ────────────────────────────────────────────── */
+:root {
+  /* Dark mode (default) */
+  --bg-primary:    #0d0d0f;
+  --bg-secondary:  #111116;
+  --bg-card:       #18181f;
+  --bg-elevated:   #21212c;
+  --bg-hover:      #2a2a38;
+  --border:        #2e2e3d;
+  --border-subtle: #232330;
+
+  --text-primary:   #eeeef8;
+  --text-secondary: #9898b8;
+  --text-muted:     #5c5c7a;
+
+  --accent:        #7c6af7;
+  --accent-hover:  #9580ff;
+  --accent-subtle: rgba(124, 106, 247, 0.12);
+  --accent-border: rgba(124, 106, 247, 0.35);
+
+  --user-bubble:   #7c6af7;
+  --user-bubble-fg:#ffffff;
+  --agent-bubble:  #21212c;
+  --agent-bubble-fg:#eeeef8;
+
+  /* Agent colors */
+  --soul-color:    #7c6af7;
+  --soul-subtle:   rgba(124, 106, 247, 0.1);
+  --max-color:     #34d399;
+  --max-subtle:    rgba(52, 211, 153, 0.1);
+  --nova-color:    #fbbf24;
+  --nova-subtle:   rgba(251, 191, 36, 0.1);
+
+  --destructive:   #ef4444;
+  --destructive-subtle: rgba(239, 68, 68, 0.1);
+  --success:       #22c55e;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+
+  --sidebar-w: 240px;
+  --sidebar-collapsed-w: 64px;
+  --scrape-panel-w: 380px;
+
+  --transition: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="light"] {
+  --bg-primary:    #f5f5fa;
+  --bg-secondary:  #ededf5;
+  --bg-card:       #ffffff;
+  --bg-elevated:   #ffffff;
+  --bg-hover:      #eaeaf5;
+  --border:        #dcdcee;
+  --border-subtle: #e8e8f4;
+
+  --text-primary:   #0d0d1a;
+  --text-secondary: #5a5a78;
+  --text-muted:     #9898b0;
+
+  --accent:        #5b4de0;
+  --accent-hover:  #6f5ef5;
+  --accent-subtle: rgba(91, 77, 224, 0.08);
+  --accent-border: rgba(91, 77, 224, 0.3);
+
+  --user-bubble:   #5b4de0;
+  --user-bubble-fg:#ffffff;
+  --agent-bubble:  #ededf5;
+  --agent-bubble-fg:#0d0d1a;
+
+  --soul-color:    #5b4de0;
+  --soul-subtle:   rgba(91, 77, 224, 0.08);
+  --max-color:     #059669;
+  --max-subtle:    rgba(5, 150, 105, 0.08);
+  --nova-color:    #d97706;
+  --nova-subtle:   rgba(217, 119, 6, 0.08);
+
+  --destructive:   #dc2626;
+  --destructive-subtle: rgba(220, 38, 38, 0.08);
+  --success:       #16a34a;
+}
+
+/* ──────────────────────────────────────────────
+   Base Reset
+   ────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ──────────────────────────────────────────────
+   Scrollbars
+   ────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ──────────────────────────────────────────────
+   Selection
+   ────────────────────────────────────────────── */
+::selection {
+  background: var(--accent-subtle);
+  color: var(--text-primary);
+}
+
+/* ──────────────────────────────────────────────
+   Utility classes (used globally)
+   ────────────────────────────────────────────── */
+.glass {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+[data-theme="light"] .glass {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.truncate-1 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ──────────────────────────────────────────────
+   Message animation
+   ────────────────────────────────────────────── */
+@keyframes msg-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.msg-animate {
+  animation: msg-in 0.22s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* ──────────────────────────────────────────────
+   Typing dots
+   ────────────────────────────────────────────── */
+@keyframes dot-bounce {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+  40%           { transform: translateY(-5px); opacity: 1; }
+}
+
+.typing-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  animation: dot-bounce 1.2s infinite ease-in-out;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.15s; }
+.typing-dot:nth-child(3) { animation-delay: 0.3s; }
+
+/* ──────────────────────────────────────────────
+   Panel slide
+   ────────────────────────────────────────────── */
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(24px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.panel-animate {
+  animation: slide-in-right 0.22s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* ──────────────────────────────────────────────
+   Focus visible ring
+   ────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* ──────────────────────────────────────────────
+   Table row hover — reveal action buttons
+   ────────────────────────────────────────────── */
+tr:hover .row-actions,
+tr:hover .group-hover-show {
+  opacity: 1 !important;
+}
+
+/* ──────────────────────────────────────────────
+   Placeholder color (cross-browser)
+   ────────────────────────────────────────────── */
+::placeholder {
+  color: var(--text-muted);
+  opacity: 1;
+}
+
