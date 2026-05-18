@@ -5,6 +5,9 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 import tsParser from '@typescript-eslint/parser'
 import tsPlugin from '@typescript-eslint/eslint-plugin'
 import { defineConfig, globalIgnores } from 'eslint/config'
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
 
 export default defineConfig([
   globalIgnores(['dist']),
@@ -40,4 +43,5 @@ export default defineConfig([
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
     },
   },
-])
+]);
+

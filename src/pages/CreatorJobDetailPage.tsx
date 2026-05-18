@@ -3,10 +3,11 @@ import { useParams, useNavigate } from 'react-router-dom'
 import {
   ArrowLeft, Play, Pause, Volume2, VolumeX, Maximize2,
   CheckCircle2, Loader2, Clock, AlertCircle, RefreshCw,
-  Cpu, Wand2, Film, Zap,
+  Cpu, Wand2, Film, Zap, Rocket,
 } from 'lucide-react'
 import { useIdeas } from '@/hooks/useIdeas'
 import { useMax, MaxJob, MaxStatus } from '@/hooks/useMax'
+import { usePublisher } from '@/hooks/usePublisher'
 import DashboardRouteTabs from '@/components/layout/DashboardRouteTabs'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -300,8 +301,16 @@ export default function CreatorJobDetailPage({ onMenuOpen, isMobile }: { onMenuO
   const { ideas }  = useIdeas()
   const approvedIdeas = useMemo(() => ideas.filter(i => i.status === 'approved'), [ideas])
   const { jobs, retryJob } = useMax(approvedIdeas)
+  const { sendToPublisher, entries: publisherEntries } = usePublisher()
 
   const job: MaxJob | null = jobs.find(j => j.ideaId === ideaId) ?? null
+  const alreadyPublished = job ? publisherEntries.some(e => e.ideaId === job.ideaId) : false
+
+  function handlePublish() {
+    if (!job) return
+    sendToPublisher(job)
+    navigate('/publisher')
+  }
 
   if (!job) {
     return (
@@ -438,6 +447,32 @@ export default function CreatorJobDetailPage({ onMenuOpen, isMobile }: { onMenuO
                   Content ready for review
                 </span>
               </div>
+
+              {/* Publish button */}
+              <button
+                onClick={handlePublish}
+                disabled={alreadyPublished}
+                style={{
+                  marginTop: 12,
+                  width: '100%',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                  padding: '12px 20px', borderRadius: 12, cursor: alreadyPublished ? 'default' : 'pointer',
+                  background: alreadyPublished
+                    ? 'rgba(34,197,94,0.08)'
+                    : 'linear-gradient(135deg, var(--nova-color) 0%, #f59e0b 100%)',
+                  border: alreadyPublished ? '1px solid rgba(34,197,94,0.3)' : 'none',
+                  color: alreadyPublished ? '#22c55e' : '#000',
+                  fontSize: 14, fontWeight: 700,
+                  boxShadow: alreadyPublished ? 'none' : '0 4px 20px rgba(251,191,36,0.3)',
+                  transition: 'opacity 0.15s',
+                  opacity: alreadyPublished ? 0.8 : 1,
+                }}
+                onMouseEnter={e => { if (!alreadyPublished) e.currentTarget.style.opacity = '0.88' }}
+                onMouseLeave={e => { if (!alreadyPublished) e.currentTarget.style.opacity = '1' }}
+              >
+                <Rocket size={15}/>
+                {alreadyPublished ? 'Sent to Publisher ✓' : 'Publish to Publisher →'}
+              </button>
             </div>
           )}
         </div>

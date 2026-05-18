@@ -7,6 +7,7 @@ import GenerateIdeasPage from '@/pages/GenerateIdeasPage'
 import CreatorDashboardPage from '@/pages/CreatorDashboardPage'
 import CreatorJobDetailPage from '@/pages/CreatorJobDetailPage'
 import PublisherDashboardPage from '@/pages/PublisherDashboardPage'
+import PublisherIdeaPage from '@/pages/PublisherIdeaPage'
 
 function RootRedirect() {
   const location = useLocation()
@@ -121,6 +122,9 @@ export default function App() {
             } />
             <Route path="/publisher" element={
               <PublisherDashboardPage onMenuOpen={() => setMobileOpen(true)} isMobile={isMobile} />
+            } />
+            <Route path="/publisher/:ideaId" element={
+              <PublisherIdeaPage onMenuOpen={() => setMobileOpen(true)} isMobile={isMobile} />
             } />
             {/* Legacy MAX routes redirect to Creator */}
             <Route path="/soul" element={<LegacyAgentRedirect to="researcher" />} />
