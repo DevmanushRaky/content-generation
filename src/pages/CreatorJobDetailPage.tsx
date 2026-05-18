@@ -353,7 +353,7 @@ export default function CreatorJobDetailPage({ onMenuOpen, isMobile }: { onMenuO
                 </p>
               </div>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                <Tag label={job.platform.replace('_', ' ').toUpperCase()} color='var(--accent)' />
+                <Tag label={formatPlatformLabel(job.platform)} color='var(--accent)' />
                 <Tag label={job.contentType === 'video' ? '🎬 Video' : '🖼 Image'} color='var(--text-secondary)' />
               </div>
             </div>
@@ -464,6 +464,11 @@ function Tag({ label, color }: { label: string; color: string }) {
       {label}
     </span>
   )
+}
+
+function formatPlatformLabel(platform: string) {
+  if (platform === 'custom') return 'Custom Prompt'
+  return platform.replace(/_/g, ' ').toUpperCase()
 }
 
 function PageHeader({

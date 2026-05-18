@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Idea } from './useIdeas'
+import { generateId } from '@/lib/utils'
 
 export type MaxStatus =
   | 'queued'
@@ -24,6 +25,28 @@ export type MaxJob = {
   startedAt: string
   updatedAt: string
   errorMessage?: string
+  source?: 'idea' | 'custom'
+  aspectRatio?: string
+  audio?: boolean
+  negativePrompt?: string
+  references?: PromptReference[]
+}
+
+export type PromptReference = {
+  id: string
+  name: string
+  kind: 'image' | 'video'
+  mimeType: string
+  size: number
+}
+
+export type CustomPromptInput = {
+  description: string
+  aspectRatio: string
+  audio: boolean
+  negativePrompt: string
+  contentType: 'video' | 'image'
+  references: PromptReference[]
 }
 
 const LS_KEY = 'cosmetology_max_jobs'
@@ -102,7 +125,12 @@ function getRandomPrompt(platform: string): string {
   return pool[Math.floor(Math.random() * pool.length)]
 }
 
-function getModel(platform: string): string {
+function getModel(platform: string, contentType?: 'video' | 'image'): string {
+  if (platform === 'custom') {
+    return contentType === 'video'
+      ? 'Sora v2 (OpenAI)'
+      : 'Adobe Firefly 3 (Image)'
+  }
   return MOCK_MODELS[platform] || 'Runway Gen-3 Alpha'
 }
 
@@ -177,11 +205,11 @@ export function useMax(approvedIdeas: Idea[]) {
             updatedAt: new Date().toISOString(),
           }
 
-          if (nextStatus === 'prompt_ready') {
+          if (nextStatus === 'prompt_ready' && !current.prompt) {
             patch.prompt = getRandomPrompt(current.platform)
           }
           if (nextStatus === 'selecting_model') {
-            patch.model = getModel(current.platform)
+            patch.model = getModel(current.platform, current.contentType)
           }
           if (nextStatus === 'video_ready') {
             // In production this would be an actual URL. We use a data-URL-style placeholder.
@@ -217,7 +245,58 @@ export function useMax(approvedIdeas: Idea[]) {
     })
   }, [])
 
-  return { jobs, getJob, retryJob, statusLabels: STATUS_LABELS }
+  const createCustomJob = useCallback((input: CustomPromptInput) => {
+    const now = new Date().toISOString()
+    const id = generateId()
+    const title = input.description.trim().split(/\s+/).slice(0, 7).join(' ') || 'Custom prompt'
+    const prompt = buildCustomPrompt(input)
+    const job: MaxJob = {
+      id,
+      ideaId: id,
+      title: title.length > 42 ? `${title.slice(0, 42).trim()}…` : title,
+      platform: 'custom',
+      contentType: input.contentType,
+      status: 'queued',
+      prompt,
+      startedAt: now,
+      updatedAt: now,
+      source: 'custom',
+      aspectRatio: input.aspectRatio,
+      audio: input.audio,
+      negativePrompt: input.negativePrompt.trim() || undefined,
+      references: input.references,
+    }
+
+    setJobs(prev => {
+      const next = [job, ...prev]
+      saveJobs(next)
+      return next
+    })
+
+    return job
+  }, [])
+
+  return { jobs, getJob, retryJob, createCustomJob, statusLabels: STATUS_LABELS }
 }
 
 export { STATUS_LABELS }
+
+function buildCustomPrompt(input: CustomPromptInput) {
+  const parts = [
+    `Prompt description: ${input.description.trim()}`,
+    `Aspect ratio: ${input.aspectRatio}`,
+    `Audio: ${input.audio ? 'true' : 'false'}`,
+  ]
+
+  if (input.negativePrompt.trim()) {
+    parts.push(`Negative prompts: ${input.negativePrompt.trim()}`)
+  }
+
+  if (input.references.length) {
+    parts.push(
+      `References: ${input.references.map(ref => `${ref.kind} ${ref.name}`).join(', ')}`
+    )
+  }
+
+  return parts.join('\n')
+}

@@ -1,10 +1,11 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Menu, Wand2, Clock, CheckCircle2, AlertCircle, Loader2, ChevronRight, Play, Image } from 'lucide-react'
 import { useIdeas } from '@/hooks/useIdeas'
 import { useMax, MaxJob, MaxStatus } from '@/hooks/useMax'
 import DashboardRouteTabs from '@/components/layout/DashboardRouteTabs'
 import { DASHBOARD_ROUTES } from '@/components/layout/dashboardRoutes'
+import CustomPromptPanel from '@/components/dashboard/CustomPromptPanel'
 
 // ─── Status Config ────────────────────────────────────────────────────────────
 
@@ -97,6 +98,7 @@ const PLATFORM_COLORS: Record<string, { color: string; bg: string; border: strin
   youtube:     { color: '#ff0000', bg: 'rgba(255,0,0,0.08)',        border: 'rgba(255,0,0,0.25)',   label: 'YouTube' },
   twitter_ads: { color: '#1d9bf0', bg: 'rgba(29,155,240,0.1)',      border: 'rgba(29,155,240,0.3)', label: 'X Ads' },
   twitter:     { color: '#1d9bf0', bg: 'rgba(29,155,240,0.1)',      border: 'rgba(29,155,240,0.3)', label: 'X / Twitter' },
+  custom:      { color: 'var(--max-color)', bg: 'var(--max-subtle)', border: 'rgba(52,211,153,0.35)', label: 'Custom Prompt' },
 }
 
 // ─── Progress bar ─────────────────────────────────────────────────────────────
@@ -222,7 +224,7 @@ function JobRow({ job, onClick }: { job: MaxJob; onClick: () => void }) {
 
 // ─── Empty state ──────────────────────────────────────────────────────────────
 
-function EmptyState({ onGoGenerate }: { onGoGenerate: () => void }) {
+function EmptyState({ onOpenPrompt }: { onOpenPrompt: () => void }) {
   return (
     <div style={{
       flex: 1, display: 'flex', flexDirection: 'column',
@@ -236,14 +238,14 @@ function EmptyState({ onGoGenerate }: { onGoGenerate: () => void }) {
       }}>✍️</div>
       <div style={{ textAlign: 'center', maxWidth: 340 }}>
         <h2 style={{ fontSize: 19, fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 8px' }}>
-          No approved ideas yet
+          No prompt jobs yet
         </h2>
         <p style={{ fontSize: 14, color: 'var(--text-muted)', margin: 0, lineHeight: 1.6 }}>
-          Approve ideas from the Generate Ideas page and Creator will start producing content automatically.
+          Write a custom prompt and start a new job directly from Creator.
         </p>
       </div>
       <button
-        onClick={onGoGenerate}
+        onClick={onOpenPrompt}
         style={{
           padding: '11px 22px', borderRadius: 12, border: 'none', cursor: 'pointer',
           background: 'var(--max-color)', color: '#000', fontSize: 14, fontWeight: 700,
@@ -252,7 +254,7 @@ function EmptyState({ onGoGenerate }: { onGoGenerate: () => void }) {
         onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
         onMouseLeave={e => e.currentTarget.style.opacity = '1'}
       >
-        Go to Generate Ideas
+        New Prompt
       </button>
     </div>
   )
@@ -260,55 +262,23 @@ function EmptyState({ onGoGenerate }: { onGoGenerate: () => void }) {
 
 // ─── Stats bar ────────────────────────────────────────────────────────────────
 
-function StatsBar({ jobs }: { jobs: MaxJob[] }) {
-  const total   = jobs.length
-  const done    = jobs.filter(j => j.status === 'video_ready').length
-  const active  = jobs.filter(j => !['video_ready', 'failed', 'queued'].includes(j.status)).length
-  const queued  = jobs.filter(j => j.status === 'queued').length
-  const failed  = jobs.filter(j => j.status === 'failed').length
-
-  const stat = (label: string, value: number, color: string) => (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, padding: '0 20px' }}>
-      <span style={{ fontSize: 22, fontWeight: 800, color, letterSpacing: '-0.04em' }}>{value}</span>
-      <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 500 }}>{label}</span>
-    </div>
-  )
-
-  return (
-    <div style={{
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      padding: '14px 24px', gap: 0,
-      borderBottom: '1px solid var(--border)',
-      background: 'var(--bg-secondary)',
-      flexShrink: 0,
-    }}>
-      {stat('Total', total, 'var(--text-primary)')}
-      <div style={{ width: 1, height: 32, background: 'var(--border)' }} />
-      {stat('Ready', done, 'var(--success)')}
-      <div style={{ width: 1, height: 32, background: 'var(--border)' }} />
-      {stat('In Progress', active, 'var(--max-color)')}
-      <div style={{ width: 1, height: 32, background: 'var(--border)' }} />
-      {stat('Queued', queued, 'var(--text-muted)')}
-      {failed > 0 && (
-        <>
-          <div style={{ width: 1, height: 32, background: 'var(--border)' }} />
-          {stat('Failed', failed, 'var(--destructive)')}
-        </>
-      )}
-    </div>
-  )
-}
-
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function CreatorDashboardPage({ onMenuOpen, isMobile }: { onMenuOpen: () => void; isMobile: boolean }) {
   const navigate = useNavigate()
   const { ideas } = useIdeas()
   const approvedIdeas = useMemo(() => ideas.filter(i => i.status === 'approved'), [ideas])
-  const { jobs } = useMax(approvedIdeas)
+  const { jobs, createCustomJob } = useMax(approvedIdeas)
   const creatorRoute = DASHBOARD_ROUTES.find(route => route.id === 'creator')
+  const [showCustomPrompt, setShowCustomPrompt] = useState(false)
 
   function handleRowClick(job: MaxJob) {
+    navigate(`/creator/${job.ideaId}`)
+  }
+
+  function handleCreateCustomJob(form: Parameters<typeof createCustomJob>[0]) {
+    const job = createCustomJob(form)
+    setShowCustomPrompt(false)
     navigate(`/creator/${job.ideaId}`)
   }
 
@@ -362,6 +332,23 @@ export default function CreatorDashboardPage({ onMenuOpen, isMobile }: { onMenuO
 
         <div style={{ flex: 1 }} />
 
+        <button
+          type="button"
+          onClick={() => setShowCustomPrompt(true)}
+          style={{
+            display: 'inline-flex', alignItems: 'center', gap: 7,
+            padding: '7px 13px', borderRadius: 9,
+            border: '1px solid var(--border)', background: 'var(--bg-elevated)',
+            color: 'var(--text-secondary)', fontSize: 12, fontWeight: 500, cursor: 'pointer',
+            transition: 'all 0.15s', flexShrink: 0,
+          }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent-border)'; e.currentTarget.style.color = 'var(--accent)' }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-secondary)' }}
+        >
+          <Wand2 size={12} />
+          New Prompt
+        </button>
+
         {/* Live indicator */}
         {jobs.some(j => !['video_ready', 'failed'].includes(j.status)) && (
           <div style={{
@@ -381,13 +368,15 @@ export default function CreatorDashboardPage({ onMenuOpen, isMobile }: { onMenuO
         )}
       </header>
 
-      {/* ── Stats ── */}
-      {jobs.length > 0 && <StatsBar jobs={jobs} />}
-
       {/* ── List ── */}
       <div style={{ flex: 1, overflowY: 'auto', background: 'var(--bg-primary)' }}>
-        {jobs.length === 0 ? (
-          <EmptyState onGoGenerate={() => navigate('/generate-ideas')} />
+        {showCustomPrompt ? (
+          <CustomPromptPanel
+            onSubmit={handleCreateCustomJob}
+            onBack={() => setShowCustomPrompt(false)}
+          />
+        ) : jobs.length === 0 ? (
+          <EmptyState onOpenPrompt={() => setShowCustomPrompt(true)} />
         ) : (
           <>
             {/* Section header */}
