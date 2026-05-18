@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { CheckCircle2, XCircle, Heart, Eye, Clock, ExternalLink, Copy, Check, Play, Image, MessageCircle } from 'lucide-react'
 import { PLATFORM_META } from './platforms'
 
@@ -36,9 +37,16 @@ function CopyButton({ text }) {
 }
 
 function IdeaCard({ idea, onApprove, onReject }) {
+  const navigate = useNavigate()
   const st   = STATUS_CONFIG[idea.status]
   const pm   = PLATFORM_META[idea.platform] || PLATFORM_META.instagram
   const isVideo = idea.contentType === 'video'
+
+  function handleApprove() {
+    onApprove(idea.id)
+    // Small delay so the status update is visible before navigation
+    setTimeout(() => navigate('/creator'), 400)
+  }
 
   return (
     <div style={{
@@ -88,7 +96,7 @@ function IdeaCard({ idea, onApprove, onReject }) {
               </h3>
             </div>
             <div style={{ display: 'flex', gap: 7, flexShrink: 0, alignItems: 'center' }}>
-              {/* Content type badge (replaces trend badge) */}
+              {/* Content type badge */}
               <div style={{
                 display: 'flex', alignItems: 'center', gap: 5,
                 padding: '3px 9px', borderRadius: 7,
@@ -137,7 +145,7 @@ function IdeaCard({ idea, onApprove, onReject }) {
             </div>
           </div>
 
-          {/* ── Row 3: Source URL with copy + open icons on right ── */}
+          {/* ── Row 3: Source URL ── */}
           <div style={{
             display: 'flex', alignItems: 'center',
             padding: '7px 10px', borderRadius: 9,
@@ -166,9 +174,8 @@ function IdeaCard({ idea, onApprove, onReject }) {
           </div>
 
           {/* ── Row 4: Why popular ── */}
-          {/* Subheading OUTSIDE the box */}
           <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--accent)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.07em' }}>
-            Why it’s popular
+            Why it's popular
           </p>
           <div style={{
             padding: '12px 14px', borderRadius: 10,
@@ -195,7 +202,7 @@ function IdeaCard({ idea, onApprove, onReject }) {
         <div style={{ display: 'flex', gap: 8, marginTop: 'auto' }}>
           <button
             id={`approve-idea-${idea.id}`}
-            onClick={() => onApprove(idea.id)}
+            onClick={handleApprove}
             disabled={idea.status === 'approved'}
             style={{
               flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
@@ -210,7 +217,7 @@ function IdeaCard({ idea, onApprove, onReject }) {
             onMouseLeave={e => { if (idea.status !== 'approved') { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)' } }}
           >
             <CheckCircle2 size={14} />
-            {idea.status === 'approved' ? 'Approved' : 'Approve'}
+            {idea.status === 'approved' ? 'Approved ✓' : 'Approve → Creator'}
           </button>
 
           <button

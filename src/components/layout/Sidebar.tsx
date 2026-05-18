@@ -1,13 +1,21 @@
-import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Settings, Sun, Moon, ChevronLeft, ChevronRight, X } from 'lucide-react'
-
-const NAV_ITEMS = [
-  { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/settings', icon: Settings, label: 'Settings' },
-]
+import { NavLink, useLocation } from 'react-router-dom'
+import { Sun, Moon, ChevronLeft, ChevronRight, ChevronDown, LayoutDashboard, X } from 'lucide-react'
+import { DASHBOARD_ROUTES, SETTINGS_ROUTE } from './dashboardRoutes'
+import { useEffect, useMemo, useState } from 'react'
 
 export default function Sidebar({ theme, onToggleTheme, collapsed, onToggleCollapse, mobileOpen, onMobileClose }) {
   const width = collapsed ? 64 : 220
+  const location = useLocation()
+  const [dashboardOpen, setDashboardOpen] = useState(true)
+
+  const dashboardActive = useMemo(
+    () => DASHBOARD_ROUTES.some(route => location.pathname === route.path || location.pathname.startsWith(`${route.path}/`)),
+    [location.pathname],
+  )
+
+  useEffect(() => {
+    if (dashboardActive) setDashboardOpen(true)
+  }, [dashboardActive])
 
   return (
     <>
@@ -90,17 +98,121 @@ export default function Sidebar({ theme, onToggleTheme, collapsed, onToggleColla
         </div>
 
         {/* ── Nav ── */}
-        <nav style={{ flex: 1, padding: '16px 10px', display: 'flex', flexDirection: 'column', gap: 4 }}>
-          {NAV_ITEMS.map(({ to, icon: Icon, label }) => (
+        <nav style={{ flex: 1, padding: '16px 10px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <button
+            type="button"
+            onClick={() => setDashboardOpen(v => !v)}
+            title={collapsed ? 'Dashboard' : undefined}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+              padding: collapsed ? '10px 0' : '10px 14px',
+              justifyContent: collapsed ? 'center' : 'flex-start',
+              borderRadius: 10,
+              border: dashboardActive ? '1px solid var(--accent-border)' : '1px solid transparent',
+              background: dashboardActive ? 'var(--accent-subtle)' : 'transparent',
+              cursor: 'pointer',
+              position: 'relative',
+              transition: 'background 0.15s',
+              color: dashboardActive ? 'var(--accent)' : 'var(--text-secondary)',
+            }}
+            onMouseEnter={e => {
+              if (!dashboardActive) e.currentTarget.style.background = 'var(--bg-hover)'
+            }}
+            onMouseLeave={e => {
+              if (!dashboardActive) e.currentTarget.style.background = 'transparent'
+            }}
+          >
+            {dashboardActive && (
+              <span style={{
+                position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)',
+                width: 3, height: 20, borderRadius: '0 3px 3px 0',
+                background: 'var(--accent)',
+              }} />
+            )}
+            <LayoutDashboard size={17} style={{ flexShrink: 0 }} />
+            {!collapsed && (
+              <>
+                <span style={{ fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap', flex: 1, textAlign: 'left' }}>Dashboard</span>
+                <ChevronDown
+                  size={15}
+                  style={{
+                    flexShrink: 0,
+                    transition: 'transform 0.15s',
+                    transform: dashboardOpen ? 'rotate(180deg)' : 'none',
+                  }}
+                />
+              </>
+            )}
+          </button>
+
+          {dashboardOpen && DASHBOARD_ROUTES.map(({ path, icon: Icon, label, color, subtle, border, id }) => (
             <NavLink
-              key={to}
-              to={to}
-              end={to === '/'}
+              key={id}
+              to={path}
+              end={path === '/researcher'}
               onClick={onMobileClose}
               title={collapsed ? label : undefined}
               style={{ textDecoration: 'none' }}
             >
-              {({ isActive }) => (
+              {({ isActive }) => {
+                const activeColor = color || 'var(--accent)'
+                const activeBg = subtle || 'var(--accent-subtle)'
+                const activeBorderColor = border || 'var(--accent-border)'
+                return (
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                    padding: collapsed ? '9px 0' : '9px 14px 9px 28px',
+                    justifyContent: collapsed ? 'center' : 'flex-start',
+                    borderRadius: 10,
+                    background: isActive ? activeBg : 'transparent',
+                    border: isActive ? `1px solid ${activeBorderColor}` : '1px solid transparent',
+                    cursor: 'pointer',
+                    position: 'relative',
+                    transition: 'background 0.15s',
+                  }}>
+                    {isActive && (
+                      <span style={{
+                        position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)',
+                        width: 3, height: 20, borderRadius: '0 3px 3px 0',
+                        background: activeColor,
+                      }} />
+                    )}
+                    <Icon
+                      size={16}
+                      style={{ color: isActive ? activeColor : 'var(--text-muted)', flexShrink: 0 }}
+                    />
+                    {!collapsed && (
+                      <span style={{
+                        fontSize: 13, fontWeight: 500,
+                        color: isActive ? activeColor : 'var(--text-secondary)',
+                        whiteSpace: 'nowrap',
+                      }}>
+                        {label}
+                      </span>
+                    )}
+                  </div>
+                )
+              }}
+            </NavLink>
+          ))}
+
+          <NavLink
+            to={SETTINGS_ROUTE.path}
+            end
+            onClick={onMobileClose}
+            title={collapsed ? SETTINGS_ROUTE.label : undefined}
+            style={{ textDecoration: 'none' }}
+          >
+            {({ isActive }) => {
+              const activeColor = SETTINGS_ROUTE.color
+              const activeBg = SETTINGS_ROUTE.subtle
+              const activeBorderColor = SETTINGS_ROUTE.border
+              const Icon = SETTINGS_ROUTE.icon
+              return (
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -108,7 +220,8 @@ export default function Sidebar({ theme, onToggleTheme, collapsed, onToggleColla
                   padding: collapsed ? '10px 0' : '10px 14px',
                   justifyContent: collapsed ? 'center' : 'flex-start',
                   borderRadius: 10,
-                  background: isActive ? 'var(--accent-subtle)' : 'transparent',
+                  background: isActive ? activeBg : 'transparent',
+                  border: isActive ? `1px solid ${activeBorderColor}` : '1px solid transparent',
                   cursor: 'pointer',
                   position: 'relative',
                   transition: 'background 0.15s',
@@ -117,26 +230,26 @@ export default function Sidebar({ theme, onToggleTheme, collapsed, onToggleColla
                     <span style={{
                       position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)',
                       width: 3, height: 20, borderRadius: '0 3px 3px 0',
-                      background: 'var(--accent)',
+                      background: activeColor,
                     }} />
                   )}
                   <Icon
                     size={17}
-                    style={{ color: isActive ? 'var(--accent)' : 'var(--text-muted)', flexShrink: 0 }}
+                    style={{ color: isActive ? activeColor : 'var(--text-muted)', flexShrink: 0 }}
                   />
                   {!collapsed && (
                     <span style={{
                       fontSize: 13, fontWeight: 500,
-                      color: isActive ? 'var(--accent)' : 'var(--text-secondary)',
+                      color: isActive ? activeColor : 'var(--text-secondary)',
                       whiteSpace: 'nowrap',
                     }}>
-                      {label}
+                      {SETTINGS_ROUTE.label}
                     </span>
                   )}
                 </div>
-              )}
-            </NavLink>
-          ))}
+              )
+            }}
+          </NavLink>
         </nav>
 
         {/* ── Bottom controls ── */}
@@ -164,7 +277,9 @@ export default function Sidebar({ theme, onToggleTheme, collapsed, onToggleColla
   )
 }
 
-function SidebarBtn({ icon, label, collapsed, onClick, title, className }: { icon: any; label: string; collapsed: boolean; onClick: () => void; title?: string; className?: string }) {
+function SidebarBtn({ icon, label, collapsed, onClick, title, className }: {
+  icon: any; label: string; collapsed: boolean; onClick: () => void; title?: string; className?: string
+}) {
   return (
     <button
       title={title}

@@ -13,7 +13,7 @@ export default function GenerateIdeasPage({ onMenuOpen, isMobile }) {
   const hashtagLine = formatHashtagLine(latestBatchMeta?.hashtags)
 
   function handleNewResearch() {
-    navigate('/?view=scrape')
+    navigate('/researcher?view=scrape')
   }
 
   return (
@@ -42,7 +42,7 @@ export default function GenerateIdeasPage({ onMenuOpen, isMobile }) {
 
         {/* Back button */}
         <button
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/researcher')}
           style={{
             display: 'flex', alignItems: 'center', gap: 6,
             background: 'none', border: 'none', cursor: 'pointer',
@@ -51,9 +51,9 @@ export default function GenerateIdeasPage({ onMenuOpen, isMobile }) {
           }}
           onMouseEnter={e => e.currentTarget.style.color = 'var(--text-primary)'}
           onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}
-        >
+          >
           <ArrowLeft size={15} />
-          {!isMobile && 'Dashboard'}
+          {!isMobile && 'Researcher'}
         </button>
 
         <div style={{ width: 1, height: 22, background: 'var(--border)' }} />
@@ -97,7 +97,7 @@ export default function GenerateIdeasPage({ onMenuOpen, isMobile }) {
       {/* ── Content ── */}
       <div style={{ flex: 1, overflow: 'hidden', display: 'flex', minHeight: 0 }}>
         {ideas.length === 0 ? (
-          <EmptyState onGenerate={() => navigate('/')} />
+          <EmptyState onGenerate={() => navigate('/researcher')} />
         ) : (
           <IdeasBoard
             ideas={ideas}

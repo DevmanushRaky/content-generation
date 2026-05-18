@@ -1,9 +1,22 @@
 import { useState, useEffect } from 'react'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams } from 'react-router-dom'
 import Sidebar from '@/components/layout/Sidebar'
 import DashboardPage from '@/pages/DashboardPage'
 import SettingsPage from '@/pages/SettingsPage'
 import GenerateIdeasPage from '@/pages/GenerateIdeasPage'
+import CreatorDashboardPage from '@/pages/CreatorDashboardPage'
+import CreatorJobDetailPage from '@/pages/CreatorJobDetailPage'
+import PublisherDashboardPage from '@/pages/PublisherDashboardPage'
+
+function RootRedirect() {
+  const location = useLocation()
+  return <Navigate to={`/researcher${location.search}`} replace />
+}
+
+function LegacyAgentRedirect({ to }: { to: 'researcher' | 'creator' | 'publisher' }) {
+  const { ideaId } = useParams()
+  return <Navigate to={ideaId ? `/${to}/${ideaId}` : `/${to}`} replace />
+}
 
 export default function App() {
   const [theme, setTheme] = useState('dark')
@@ -90,7 +103,8 @@ export default function App() {
           }}
         >
           <Routes>
-            <Route path="/" element={
+            <Route path="/" element={<RootRedirect />} />
+            <Route path="/researcher" element={
               <DashboardPage onMenuOpen={() => setMobileOpen(true)} isMobile={isMobile} />
             } />
             <Route path="/generate-ideas" element={
@@ -98,6 +112,25 @@ export default function App() {
             } />
             <Route path="/settings" element={
               <SettingsPage onMenuOpen={() => setMobileOpen(true)} isMobile={isMobile} />
+            } />
+            <Route path="/creator" element={
+              <CreatorDashboardPage onMenuOpen={() => setMobileOpen(true)} isMobile={isMobile} />
+            } />
+            <Route path="/creator/:ideaId" element={
+              <CreatorJobDetailPage onMenuOpen={() => setMobileOpen(true)} isMobile={isMobile} />
+            } />
+            <Route path="/publisher" element={
+              <PublisherDashboardPage onMenuOpen={() => setMobileOpen(true)} isMobile={isMobile} />
+            } />
+            {/* Legacy MAX routes redirect to Creator */}
+            <Route path="/soul" element={<LegacyAgentRedirect to="researcher" />} />
+            <Route path="/soul/:ideaId" element={<LegacyAgentRedirect to="researcher" />} />
+            <Route path="/max" element={<LegacyAgentRedirect to="creator" />} />
+            <Route path="/max/:ideaId" element={<LegacyAgentRedirect to="creator" />} />
+            <Route path="/nova" element={<LegacyAgentRedirect to="publisher" />} />
+            <Route path="/nova/:ideaId" element={<LegacyAgentRedirect to="publisher" />} />
+            <Route path="*" element={
+              <Navigate to="/researcher" replace />
             } />
           </Routes>
         </main>
