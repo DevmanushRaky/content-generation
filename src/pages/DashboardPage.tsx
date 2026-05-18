@@ -11,7 +11,7 @@ import { DASHBOARD_ROUTES } from '@/components/layout/dashboardRoutes'
 export default function DashboardPage({ onMenuOpen, isMobile }) {
   const navigate = useNavigate()
   const location = useLocation()
-  const { view, ideas, runScrapeJob, resetToScrape, goHome } = useIdeas()
+  const { view, ideas, runScrapeJob, resetToScrape, goHome, deleteIdea } = useIdeas()
   const researcherRoute = DASHBOARD_ROUTES.find(route => route.id === 'researcher')
 
   // Open scrape panel when arriving via ?view=scrape (e.g. from Generate Ideas → New Research)
@@ -95,6 +95,7 @@ export default function DashboardPage({ onMenuOpen, isMobile }) {
           <IdeasTable
             ideas={ideas}
             onNewResearch={resetToScrape}
+            onDeleteIdea={deleteIdea}
           />
         )}
         {view === 'scrape' && (

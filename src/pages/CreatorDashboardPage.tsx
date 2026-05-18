@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Menu, Wand2, Clock, CheckCircle2, AlertCircle, Loader2, ChevronRight, Play, Image } from 'lucide-react'
+import { Menu, Wand2, Clock, CheckCircle2, AlertCircle, Loader2, ChevronRight, Play, Image, Trash2 } from 'lucide-react'
 import { useIdeas } from '@/hooks/useIdeas'
 import { useMax, MaxJob, MaxStatus } from '@/hooks/useMax'
 import DashboardRouteTabs from '@/components/layout/DashboardRouteTabs'
@@ -141,7 +141,7 @@ function ProgressBar({ status }: { status: MaxStatus }) {
 
 // ─── Job Row ──────────────────────────────────────────────────────────────────
 
-function JobRow({ job, onClick }: { job: MaxJob; onClick: () => void }) {
+function JobRow({ job, onClick, onDelete }: { job: MaxJob; onClick: () => void; onDelete: () => void }) {
   const sc = getStatusConfig(job.status)
   const pm = PLATFORM_COLORS[job.platform] || PLATFORM_COLORS.instagram
   const isVideo = job.contentType === 'video'
@@ -216,8 +216,43 @@ function JobRow({ job, onClick }: { job: MaxJob; onClick: () => void }) {
         {sc.label}
       </div>
 
-      {/* Arrow */}
-      <ChevronRight size={14} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifySelf: 'end' }}>
+        <button
+          type="button"
+          aria-label={`Delete ${job.title}`}
+          onClick={e => {
+            e.stopPropagation()
+            onDelete()
+          }}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: 30,
+            height: 30,
+            borderRadius: 8,
+            border: '1px solid transparent',
+            background: 'transparent',
+            color: 'var(--text-muted)',
+            cursor: 'pointer',
+            flexShrink: 0,
+            transition: 'all 0.15s',
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.background = 'var(--destructive-subtle)'
+            e.currentTarget.style.color = 'var(--destructive)'
+            e.currentTarget.style.borderColor = 'rgba(239,68,68,0.25)'
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.background = 'transparent'
+            e.currentTarget.style.color = 'var(--text-muted)'
+            e.currentTarget.style.borderColor = 'transparent'
+          }}
+        >
+          <Trash2 size={14} />
+        </button>
+        <ChevronRight size={14} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
+      </div>
     </div>
   )
 }
@@ -268,7 +303,7 @@ export default function CreatorDashboardPage({ onMenuOpen, isMobile }: { onMenuO
   const navigate = useNavigate()
   const { ideas } = useIdeas()
   const approvedIdeas = useMemo(() => ideas.filter(i => i.status === 'approved'), [ideas])
-  const { jobs, createCustomJob } = useMax(approvedIdeas)
+  const { jobs, createCustomJob, deleteJob } = useMax(approvedIdeas)
   const creatorRoute = DASHBOARD_ROUTES.find(route => route.id === 'creator')
   const [showCustomPrompt, setShowCustomPrompt] = useState(false)
 
@@ -332,23 +367,6 @@ export default function CreatorDashboardPage({ onMenuOpen, isMobile }: { onMenuO
 
         <div style={{ flex: 1 }} />
 
-        <button
-          type="button"
-          onClick={() => setShowCustomPrompt(true)}
-          style={{
-            display: 'inline-flex', alignItems: 'center', gap: 7,
-            padding: '7px 13px', borderRadius: 9,
-            border: '1px solid var(--border)', background: 'var(--bg-elevated)',
-            color: 'var(--text-secondary)', fontSize: 12, fontWeight: 500, cursor: 'pointer',
-            transition: 'all 0.15s', flexShrink: 0,
-          }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent-border)'; e.currentTarget.style.color = 'var(--accent)' }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-secondary)' }}
-        >
-          <Wand2 size={12} />
-          New Prompt
-        </button>
-
         {/* Live indicator */}
         {jobs.some(j => !['video_ready', 'failed'].includes(j.status)) && (
           <div style={{
@@ -382,15 +400,38 @@ export default function CreatorDashboardPage({ onMenuOpen, isMobile }: { onMenuO
             {/* Section header */}
             <div style={{
               padding: '12px 20px 8px',
-              display: 'flex', alignItems: 'center', gap: 8,
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
             }}>
-              <Wand2 size={13} style={{ color: 'var(--text-muted)' }} />
-              <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                Approved Ideas — {jobs.length} job{jobs.length !== 1 ? 's' : ''}
-              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+                <Wand2 size={13} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
+                <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', whiteSpace: 'nowrap' }}>
+                  Approved Ideas — {jobs.length} job{jobs.length !== 1 ? 's' : ''}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowCustomPrompt(true)}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 7,
+                  padding: '7px 13px', borderRadius: 9,
+                  border: '1px solid var(--border)', background: 'var(--bg-elevated)',
+                  color: 'var(--text-secondary)', fontSize: 12, fontWeight: 500, cursor: 'pointer',
+                  transition: 'all 0.15s', flexShrink: 0,
+                }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent-border)'; e.currentTarget.style.color = 'var(--accent)' }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-secondary)' }}
+              >
+                <Wand2 size={12} />
+                New Prompt
+              </button>
             </div>
             {jobs.map(job => (
-              <JobRow key={job.id} job={job} onClick={() => handleRowClick(job)} />
+              <JobRow
+                key={job.id}
+                job={job}
+                onClick={() => handleRowClick(job)}
+                onDelete={() => deleteJob(job.ideaId)}
+              />
             ))}
           </>
         )}

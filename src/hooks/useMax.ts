@@ -245,6 +245,14 @@ export function useMax(approvedIdeas: Idea[]) {
     })
   }, [])
 
+  const deleteJob = useCallback((ideaId: string) => {
+    setJobs(prev => {
+      const next = prev.filter(j => j.ideaId !== ideaId)
+      saveJobs(next)
+      return next
+    })
+  }, [])
+
   const createCustomJob = useCallback((input: CustomPromptInput) => {
     const now = new Date().toISOString()
     const id = generateId()
@@ -276,7 +284,7 @@ export function useMax(approvedIdeas: Idea[]) {
     return job
   }, [])
 
-  return { jobs, getJob, retryJob, createCustomJob, statusLabels: STATUS_LABELS }
+  return { jobs, getJob, retryJob, deleteJob, createCustomJob, statusLabels: STATUS_LABELS }
 }
 
 export { STATUS_LABELS }

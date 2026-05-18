@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { Heart, Eye, Clock, ArrowRight, Play } from 'lucide-react'
+import { Heart, Eye, Clock, ArrowRight, Play, Trash2 } from 'lucide-react'
 import type { Idea } from '@/hooks/useIdeas'
 
 // Inline SVG brand icons — real platform logos
@@ -92,9 +92,10 @@ function formatDate(iso) {
 type IdeasTableProps = {
   ideas: Idea[]
   onNewResearch: () => void
+  onDeleteIdea: (_id: string) => void
 }
 
-export default function IdeasTable({ ideas, onNewResearch }: IdeasTableProps) {
+export default function IdeasTable({ ideas, onNewResearch, onDeleteIdea }: IdeasTableProps) {
   const navigate = useNavigate()
 
   if (ideas.length === 0) {
@@ -133,7 +134,7 @@ export default function IdeasTable({ ideas, onNewResearch }: IdeasTableProps) {
   }
 
 
-  const COLS = ['#', 'Topic', 'Platform', 'Type', 'Engagement', 'Generated', 'Stage', 'Status']
+  const COLS = ['#', 'Topic', 'Platform', 'Type', 'Engagement', 'Generated', 'Stage', 'Status', '']
 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'var(--bg-primary)' }}>
@@ -184,17 +185,17 @@ export default function IdeasTable({ ideas, onNewResearch }: IdeasTableProps) {
               background: 'var(--bg-secondary)',
               position: 'sticky', top: 0, zIndex: 2,
             }}>
-              {COLS.map((col, i) => (
-                <th key={i} style={{
-                  padding: i === 0 ? '11px 16px 11px 28px' : '11px 14px',
-                  textAlign: 'left',
-                  fontSize: 11, fontWeight: 600, letterSpacing: '0.07em',
-                  textTransform: 'uppercase', color: 'var(--text-muted)',
-                  whiteSpace: 'nowrap',
-                }}>
-                  {col}
-                </th>
-              ))}
+            {COLS.map((col, i) => (
+              <th key={i} style={{
+                padding: i === 0 ? '11px 16px 11px 28px' : i === COLS.length - 1 ? '11px 18px 11px 8px' : '11px 14px',
+                textAlign: 'left',
+                fontSize: 11, fontWeight: 600, letterSpacing: '0.07em',
+                textTransform: 'uppercase', color: 'var(--text-muted)',
+                whiteSpace: 'nowrap',
+              }}>
+                {col}
+              </th>
+            ))}
             </tr>
           </thead>
           <tbody>
@@ -308,6 +309,44 @@ export default function IdeasTable({ ideas, onNewResearch }: IdeasTableProps) {
                     }}>
                       {st.label}
                     </span>
+                  </td>
+
+                  {/* Actions */}
+                  <td style={{ padding: '13px 18px 13px 8px', whiteSpace: 'nowrap', textAlign: 'right' }}>
+                    <button
+                      type="button"
+                      aria-label={`Delete ${idea.topicHeading || 'idea'}`}
+                      title="Delete"
+                      onClick={e => {
+                        e.stopPropagation()
+                        onDeleteIdea(idea.id)
+                      }}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: 30,
+                        height: 30,
+                        borderRadius: 8,
+                        border: '1px solid transparent',
+                        background: 'transparent',
+                        color: 'var(--text-muted)',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s',
+                      }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.background = 'var(--destructive-subtle)'
+                        e.currentTarget.style.borderColor = 'rgba(239,68,68,0.25)'
+                        e.currentTarget.style.color = 'var(--destructive)'
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.background = 'transparent'
+                        e.currentTarget.style.borderColor = 'transparent'
+                        e.currentTarget.style.color = 'var(--text-muted)'
+                      }}
+                    >
+                      <Trash2 size={14} />
+                    </button>
                   </td>
 
                 </tr>

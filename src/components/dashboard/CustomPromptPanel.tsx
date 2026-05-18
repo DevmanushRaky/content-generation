@@ -13,7 +13,6 @@ type PromptForm = {
   aspectRatio: string
   audio: boolean
   negativePrompt: string
-  contentType: 'image' | 'video'
   references: PromptReference[]
 }
 
@@ -119,7 +118,6 @@ export default function CustomPromptPanel({ onSubmit, onBack }: CustomPromptPane
     aspectRatio: '16:9',
     audio: false,
     negativePrompt: '',
-    contentType: 'video',
     references: [],
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -133,7 +131,6 @@ export default function CustomPromptPanel({ onSubmit, onBack }: CustomPromptPane
     const nextErrors: Record<string, string> = {}
     if (!form.description.trim()) nextErrors.description = 'Prompt description is required'
     if (!form.aspectRatio.trim()) nextErrors.aspectRatio = 'Aspect ratio is required'
-    if (form.contentType === 'image' && form.audio) nextErrors.audio = 'Audio only applies to video prompts'
     setErrors(nextErrors)
     return Object.keys(nextErrors).length === 0
   }
@@ -166,7 +163,7 @@ export default function CustomPromptPanel({ onSubmit, onBack }: CustomPromptPane
       aspectRatio: form.aspectRatio,
       audio: form.audio,
       negativePrompt: form.negativePrompt.trim(),
-      contentType: form.contentType,
+      contentType: 'video',
       references: form.references,
     })
   }
@@ -262,82 +259,48 @@ export default function CustomPromptPanel({ onSubmit, onBack }: CustomPromptPane
               </select>
               {errors.aspectRatio && <p style={{ color: 'var(--destructive)', fontSize: 12, marginTop: 6 }}>{errors.aspectRatio}</p>}
             </div>
-
             <div>
-              <SectionLabel icon={Film} label="Output Type" note="Select the asset type Creator should produce" />
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10 }}>
-                {[
-                  { value: 'video', label: 'Video' },
-                  { value: 'image', label: 'Image' },
-                ].map(option => {
-                  const active = form.contentType === option.value
-                  return (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => set('contentType', option.value as PromptForm['contentType'])}
-                      style={{
-                        padding: '12px 14px',
-                        borderRadius: 10,
-                        cursor: 'pointer',
-                        border: active ? '1px solid var(--accent-border)' : '1px solid var(--border)',
-                        background: active ? 'var(--accent-subtle)' : 'var(--bg-secondary)',
-                        color: active ? 'var(--accent)' : 'var(--text-secondary)',
-                        fontSize: 13,
-                        fontWeight: 600,
-                        textAlign: 'center',
-                      }}
-                    >
-                      {option.label}
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <SectionLabel icon={AudioIcon} label="Audio" note="Only applies when the output is video" />
-            <button
-              type="button"
-              onClick={() => set('audio', !form.audio)}
-              disabled={form.contentType === 'image'}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                width: '100%',
-                padding: '12px 14px',
-                borderRadius: 12,
-                border: form.contentType === 'image' ? '1px solid var(--border)' : '1px solid var(--border)',
-                background: form.contentType === 'image' ? 'var(--bg-secondary)' : 'var(--bg-primary)',
-                color: form.contentType === 'image' ? 'var(--text-muted)' : 'var(--text-primary)',
-                cursor: form.contentType === 'image' ? 'not-allowed' : 'pointer',
-                justifyContent: 'space-between',
-                fontSize: 14,
-              }}
-            >
-              <span>Audio {form.audio ? 'enabled' : 'disabled'}</span>
-              <span style={{
-                width: 42, height: 24, borderRadius: 99,
-                background: form.audio ? 'var(--accent)' : 'var(--bg-elevated)',
-                border: '1px solid var(--border)',
-                position: 'relative',
-                flexShrink: 0,
-              }}>
+              <SectionLabel icon={AudioIcon} label="Audio" note="Include sound in the final video" />
+              <button
+                type="button"
+                onClick={() => set('audio', !form.audio)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10,
+                  width: '100%',
+                  padding: '12px 14px',
+                  borderRadius: 12,
+                  border: '1px solid var(--border)',
+                  background: 'var(--bg-primary)',
+                  color: 'var(--text-primary)',
+                  cursor: 'pointer',
+                  justifyContent: 'space-between',
+                  fontSize: 14,
+                }}
+              >
+                <span>Audio {form.audio ? 'enabled' : 'disabled'}</span>
                 <span style={{
-                  position: 'absolute',
-                  top: 2,
-                  left: form.audio ? 20 : 2,
-                  width: 18,
-                  height: 18,
-                  borderRadius: '50%',
-                  background: '#fff',
-                  transition: 'left 0.15s',
-                }} />
-              </span>
-            </button>
-            {errors.audio && <p style={{ color: 'var(--destructive)', fontSize: 12, marginTop: 6 }}>{errors.audio}</p>}
+                  width: 42, height: 24, borderRadius: 99,
+                  background: form.audio ? 'var(--accent)' : 'var(--bg-elevated)',
+                  border: '1px solid var(--border)',
+                  position: 'relative',
+                  flexShrink: 0,
+                }}>
+                  <span style={{
+                    position: 'absolute',
+                    top: 2,
+                    left: form.audio ? 20 : 2,
+                    width: 18,
+                    height: 18,
+                    borderRadius: '50%',
+                    background: '#fff',
+                    transition: 'left 0.15s',
+                  }} />
+                </span>
+              </button>
+              {errors.audio && <p style={{ color: 'var(--destructive)', fontSize: 12, marginTop: 6 }}>{errors.audio}</p>}
+            </div>
           </div>
 
           <div>

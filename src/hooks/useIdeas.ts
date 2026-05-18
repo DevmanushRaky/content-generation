@@ -420,6 +420,14 @@ export function useIdeas() {
     })
   }, [])
 
+  const deleteIdea = useCallback((id: string) => {
+    setIdeas(prev => {
+      const next = prev.filter(i => i.id !== id)
+      saveIdeas(next)
+      return next
+    })
+  }, [])
+
   const goHome = useCallback(() => { setView('home') }, [])
   const resetToScrape = useCallback(() => { setView('scrape') }, [])
 
@@ -435,7 +443,7 @@ export function useIdeas() {
 
   return {
     ideas, latestIdeas, latestBatchMeta, processing, view,
-    runScrapeJob, approveIdea, rejectIdea,
+    runScrapeJob, approveIdea, rejectIdea, deleteIdea,
     goHome, resetToScrape, clearIdeas,
   }
 }
